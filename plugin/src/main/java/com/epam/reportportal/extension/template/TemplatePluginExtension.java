@@ -12,6 +12,7 @@ import com.epam.reportportal.extension.template.utils.MemoizingSupplier;
 import com.epam.ta.reportportal.dao.IntegrationRepository;
 import com.epam.ta.reportportal.dao.IntegrationTypeRepository;
 import com.epam.ta.reportportal.dao.LogRepository;
+import org.pf4j.Extension;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -28,6 +29,7 @@ import java.util.function.Supplier;
 /**
  * @author Andrei Piankouski
  */
+@Extension
 public class TemplatePluginExtension implements ReportPortalExtensionPoint, DisposableBean {
 
     private static final String PLUGIN_ID = "template";
