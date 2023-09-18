@@ -1,12 +1,15 @@
 sourceCompatibility = JavaVersion.VERSION_11
 targetCompatibility = JavaVersion.VERSION_11
 
-project.ext {
-    releaseMode = project.hasProperty("releaseMode")
-    pluginsDir = "$buildDir/jars"
+def commonScriptsUrl = 'https://raw.githubusercontent.com/reportportal/gradle-scripts/'
 
+project.ext {
+    publishRepo = "https://maven.pkg.github.com/reportportal/plugin-bts-gitlab"
+    dependencyRepos = ["plugin-api", "commons-bom"]
+    releaseMode = project.hasProperty("releaseMode")
+    pluginsDir = "$buildDir/plugins"
 }
 
 wrapper {
-    gradleVersion = '6.0'
+    gradleVersion = '5.4.1'
 }
