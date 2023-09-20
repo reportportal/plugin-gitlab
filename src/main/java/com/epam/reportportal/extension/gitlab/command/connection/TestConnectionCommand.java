@@ -23,6 +23,7 @@ import com.epam.ta.reportportal.entity.integration.Integration;
 import com.epam.ta.reportportal.entity.integration.IntegrationParams;
 import com.epam.ta.reportportal.exception.ReportPortalException;
 import com.epam.ta.reportportal.ws.model.ErrorType;
+import org.gitlab4j.api.models.Project;
 
 import java.util.Map;
 
@@ -56,11 +57,13 @@ public class TestConnectionCommand implements PluginCommand<Boolean> {
 
         try {
             GitlabClient restClient = gitlabClientProvider.apiClientFactory(integrationParams);
-            boolean b = restClient.getProject(project) != null;
+            Project project1 = restClient.getProject(project);
+            boolean b = project1 != null;
             if (b) {
                 System.out.println("=============================== SUCCESS");
+                System.out.println("=============================== " + project1);
             } else {
-                System.out.println("=============================== SUCCESS");
+                System.out.println("=============================== FAILURE");
             }
             return b;
         } catch (Exception e) {
