@@ -1,6 +1,7 @@
 package com.epam.reportportal.extension.gitlab;
 
 import com.epam.reportportal.extension.*;
+import com.epam.reportportal.extension.bugtracking.BtsExtension;
 import com.epam.reportportal.extension.common.IntegrationTypeProperties;
 import com.epam.reportportal.extension.event.PluginEvent;
 import com.epam.reportportal.extension.event.StartLaunchEvent;
@@ -16,6 +17,10 @@ import com.epam.ta.reportportal.dao.IntegrationRepository;
 import com.epam.ta.reportportal.dao.IntegrationTypeRepository;
 import com.epam.ta.reportportal.dao.LaunchRepository;
 import com.epam.ta.reportportal.dao.LogRepository;
+import com.epam.ta.reportportal.entity.integration.Integration;
+import com.epam.ta.reportportal.ws.model.externalsystem.PostFormField;
+import com.epam.ta.reportportal.ws.model.externalsystem.PostTicketRQ;
+import com.epam.ta.reportportal.ws.model.externalsystem.Ticket;
 import org.jasypt.util.text.BasicTextEncryptor;
 import org.pf4j.Extension;
 import org.springframework.beans.factory.DisposableBean;
@@ -26,10 +31,7 @@ import org.springframework.context.event.ApplicationEventMulticaster;
 import org.springframework.context.support.AbstractApplicationContext;
 
 import javax.annotation.PostConstruct;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -37,7 +39,7 @@ import java.util.stream.Collectors;
  * @author Zsolt Nagyaghy
  */
 @Extension
-public class GitlabExtension implements ReportPortalExtensionPoint, DisposableBean {
+public class GitlabExtension implements ReportPortalExtensionPoint, DisposableBean, BtsExtension {
 
     private static final String PLUGIN_ID = "Gitlab";
     public static final String BINARY_DATA_PROPERTIES_FILE_ID = "binary-data.properties";
@@ -146,5 +148,30 @@ public class GitlabExtension implements ReportPortalExtensionPoint, DisposableBe
         List<PluginCommand<?>> commands = new ArrayList<>();
         commands.add(new TestConnectionCommand(gitlabClientProviderSupplier.get()));
         return commands.stream().collect(Collectors.toMap(NamedPluginCommand::getName, it -> it));
+    }
+
+    @Override
+    public boolean testConnection(Integration system) {
+        return false;
+    }
+
+    @Override
+    public Optional<Ticket> getTicket(String id, Integration system) {
+        return Optional.empty();
+    }
+
+    @Override
+    public Ticket submitTicket(PostTicketRQ ticketRQ, Integration system) {
+        return null;
+    }
+
+    @Override
+    public List<PostFormField> getTicketFields(String issueType, Integration system) {
+        return null;
+    }
+
+    @Override
+    public List<String> getIssueTypes(Integration system) {
+        return null;
     }
 }

@@ -17,7 +17,6 @@ package com.epam.reportportal.extension.gitlab.event.plugin;
 
 import com.epam.reportportal.extension.event.PluginEvent;
 import com.epam.reportportal.extension.gitlab.event.EventHandlerFactory;
-import com.epam.reportportal.extension.gitlab.event.EventHandlerFactory;
 import com.epam.reportportal.extension.gitlab.event.handler.EventHandler;
 import com.epam.reportportal.extension.gitlab.event.handler.plugin.PluginLoadedEventHandler;
 import com.epam.reportportal.extension.gitlab.info.PluginInfoProvider;

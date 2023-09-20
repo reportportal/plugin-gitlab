@@ -29,10 +29,6 @@ export const IntegrationSettings = (props) => {
       value: data.integrationParameters.project,
       message: LABELS.PROJECT,
     },
-    {
-      value: data.integrationParameters.email,
-      message: LABELS.AUTH_BY,
-    },
   ];
 
   const getConfirmationFunc = (testConnection) => (integrationData, integrationMetaData) => {

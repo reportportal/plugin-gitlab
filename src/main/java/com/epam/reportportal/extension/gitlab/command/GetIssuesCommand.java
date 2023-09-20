@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.epam.reportportal.extension.gitlab.command.connection;
+package com.epam.reportportal.extension.gitlab.command;
 
 import com.epam.reportportal.extension.PluginCommand;
 import com.epam.reportportal.extension.gitlab.command.utils.GitlabProperties;
@@ -23,7 +23,9 @@ import com.epam.ta.reportportal.entity.integration.Integration;
 import com.epam.ta.reportportal.entity.integration.IntegrationParams;
 import com.epam.ta.reportportal.exception.ReportPortalException;
 import com.epam.ta.reportportal.ws.model.ErrorType;
+import org.gitlab4j.api.models.Issue;
 
+import java.util.List;
 import java.util.Map;
 
 import static java.util.Optional.ofNullable;
@@ -32,11 +34,11 @@ import static org.hibernate.bytecode.BytecodeLogger.LOGGER;
 /**
  * @author <a href="mailto:pavel_bortnik@epam.com">Pavel Bortnik</a>
  */
-public class TestConnectionCommand implements PluginCommand<Boolean> {
+public class GetIssuesCommand implements PluginCommand<List<Issue>> {
 
     private final GitlabClientProvider gitlabClientProvider;
 
-    public TestConnectionCommand(GitlabClientProvider gitlabClientProvider) {
+    public GetIssuesCommand(GitlabClientProvider gitlabClientProvider) {
         this.gitlabClientProvider = gitlabClientProvider;
     }
 
@@ -46,7 +48,7 @@ public class TestConnectionCommand implements PluginCommand<Boolean> {
     }
 
     @Override
-    public Boolean executeCommand(Integration integration, Map<String, Object> params) {
+    public List<Issue> executeCommand(Integration integration, Map<String, Object> params) {
         IntegrationParams integrationParams = ofNullable(integration.getParams()).orElseThrow(() -> new ReportPortalException(ErrorType.UNABLE_INTERACT_WITH_INTEGRATION,
                 "Integration params are not specified."
         ));
@@ -56,19 +58,10 @@ public class TestConnectionCommand implements PluginCommand<Boolean> {
 
         try {
             GitlabClient restClient = gitlabClientProvider.apiClientFactory(integrationParams);
-            boolean b = restClient.getProject(project) != null;
-            if (b) {
-                System.out.println("=============================== SUCCESS");
-            } else {
-                System.out.println("=============================== SUCCESS");
-            }
-            return b;
+            return restClient.getIssues(project);
         } catch (Exception e) {
-            LOGGER.error("Unable to connect to GitLab: " + e.getMessage(), e);
-            throw new ReportPortalException(ErrorType.UNABLE_INTERACT_WITH_INTEGRATION,
-                    String.format("Unable to connect to GitLab. Message: %s", e.getMessage()),
-                    e
-            );
+            LOGGER.error("Issues not found: " + e.getMessage(), e);
+            throw new ReportPortalException(ErrorType.BAD_REQUEST_ERROR, e.getMessage());
         }
     }
 }

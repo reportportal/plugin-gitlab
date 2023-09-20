@@ -26,7 +26,6 @@ import java.util.Optional;
  */
 public enum GitlabProperties {
 
-	EMAIL("email"),
 	PROJECT("project"),
 	API_TOKEN("apiToken"),
 	URL("url");

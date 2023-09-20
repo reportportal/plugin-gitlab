@@ -54,8 +54,8 @@ class GitlabExtensionTest {
     public void init() {
         Map<String, Object> params = new HashMap<>();
         params.put("url", "https://git.epam.com");
-        params.put("project", "103789");
-        params.put("apiToken", "6yUkxMxopyp65z8z3zZR");
+        params.put("project", "id");
+        params.put("apiToken", "token");
         IntegrationParams integrationParams = new IntegrationParams(params);
         integration = new Integration(1L, new Project(1L, "ProjectName"), new IntegrationType(),
                 integrationParams, LocalDateTime.now());

@@ -8,6 +8,18 @@ project.ext {
     dependencyRepos = ["plugin-api", "commons-bom"]
     releaseMode = project.hasProperty("releaseMode")
     pluginsDir = "$buildDir/plugins"
+    scriptsUrl = commonScriptsUrl + (releaseMode ? getProperty('scripts.version') : 'develop')
+    excludeTests = [
+            '**/entity/**'
+    ]
+    limits = [
+            'instruction': 10,
+            'branch'     : 3,
+            'line'       : 10,
+            'complexity' : 8,
+            'method'     : 10,
+            'class'      : 10
+    ]
 }
 
 wrapper {

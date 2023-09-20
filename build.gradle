@@ -48,18 +48,15 @@ dependencies {
         annotationProcessor 'com.github.reportportal:plugin-api:886ac55'
     }
 
-    compile group: 'org.gitlab4j', name: 'gitlab4j-api', version: '5.3.0'
-
-    compile 'com.squareup.okhttp:okhttp:2.7.5'
-    compile 'com.squareup.okhttp:logging-interceptor:2.7.5'
-    compile 'io.gsonfire:gson-fire:1.8.0'
-    compile 'org.threeten:threetenbp:1.3.5'
-
     implementation group: 'javax.servlet', name: 'javax.servlet-api', version: '4.0.1'
-    implementation group: 'org.glassfish', name: 'javax.el', version: '3.0.0'
-    implementation group: 'javax.el', name: 'javax.el-api', version: '3.0.0'
-    implementation group: 'org.jooq', name: 'jooq', version: '3.14.4'
-    jooqRuntime 'org.postgresql:postgresql:42.2.13'
+    compile (group: 'org.gitlab4j', name: 'gitlab4j-api', version: '5.3.0') {
+        exclude(group: 'jakarta.activation')
+        exclude(group: 'org.glassfish.jersey.inject')
+        exclude(group: 'org.glassfish.jersey.core')
+        exclude(group: 'org.glassfish.jersey.connectors')
+        exclude(group: 'org.glassfish.jersey.media')
+        exclude(group: 'jakarta.servlet')
+    }
 
     testImplementation 'org.junit.jupiter:junit-jupiter:5.6.0'
     testImplementation 'org.mockito:mockito-junit-jupiter:3.12.4'
