@@ -172,6 +172,6 @@ public class GitlabExtension implements ReportPortalExtensionPoint, DisposableBe
 
     @Override
     public List<String> getIssueTypes(Integration system) {
-        return null;
+        return List.of("OPENED", "CLOSED", "REOPENED");
     }
 }

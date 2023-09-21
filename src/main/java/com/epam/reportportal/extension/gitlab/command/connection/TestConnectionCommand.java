@@ -58,14 +58,7 @@ public class TestConnectionCommand implements PluginCommand<Boolean> {
         try {
             GitlabClient restClient = gitlabClientProvider.apiClientFactory(integrationParams);
             Project project1 = restClient.getProject(project);
-            boolean b = project1 != null;
-            if (b) {
-                System.out.println("=============================== SUCCESS");
-                System.out.println("=============================== " + project1);
-            } else {
-                System.out.println("=============================== FAILURE");
-            }
-            return b;
+            return project1 != null;
         } catch (Exception e) {
             LOGGER.error("Unable to connect to GitLab: " + e.getMessage(), e);
             throw new ReportPortalException(ErrorType.UNABLE_INTERACT_WITH_INTEGRATION,
