@@ -11,6 +11,9 @@ import com.epam.ta.reportportal.entity.integration.Integration;
 import com.epam.ta.reportportal.entity.integration.IntegrationParams;
 import com.epam.ta.reportportal.entity.integration.IntegrationType;
 import com.epam.ta.reportportal.entity.project.Project;
+import com.epam.ta.reportportal.ws.model.externalsystem.PostFormField;
+import com.epam.ta.reportportal.ws.model.externalsystem.PostTicketRQ;
+import com.epam.ta.reportportal.ws.model.externalsystem.Ticket;
 import org.jasypt.util.text.BasicTextEncryptor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,6 +27,8 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class GitlabExtensionTest {
@@ -54,8 +59,8 @@ class GitlabExtensionTest {
     public void init() {
         Map<String, Object> params = new HashMap<>();
         params.put("url", "https://git.epam.com");
-        params.put("project", "103789");
-        params.put("apiToken", "6yUkxMxopyp65z8z3zZR");
+        params.put("project", "id");
+        params.put("apiToken", "token");
         IntegrationParams integrationParams = new IntegrationParams(params);
         integration = new Integration(1L, new Project(1L, "ProjectName"), new IntegrationType(),
                 integrationParams, LocalDateTime.now());

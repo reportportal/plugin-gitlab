@@ -55,7 +55,10 @@ public class TestConnectionCommand implements PluginCommand<Boolean> {
                 .orElseThrow(() -> new ReportPortalException(ErrorType.UNABLE_INTERACT_WITH_INTEGRATION, "Project key is not specified."));
 
         try {
-            GitlabClient restClient = gitlabClientProvider.apiClientFactory(integrationParams);
+            GitlabClient restClient = gitlabClientProvider.get(integrationParams);
+
+            restClient.postIssue(project, Map.of());
+
             return restClient.getProject(project) != null;
         } catch (Exception e) {
             LOGGER.error("Unable to connect to GitLab: " + e.getMessage(), e);

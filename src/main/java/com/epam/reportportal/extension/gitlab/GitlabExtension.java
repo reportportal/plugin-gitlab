@@ -1,32 +1,22 @@
 package com.epam.reportportal.extension.gitlab;
 
 import com.epam.reportportal.extension.*;
-import com.epam.reportportal.extension.bugtracking.BtsExtension;
 import com.epam.reportportal.extension.common.IntegrationTypeProperties;
 import com.epam.reportportal.extension.event.PluginEvent;
 import com.epam.reportportal.extension.event.StartLaunchEvent;
+import com.epam.reportportal.extension.gitlab.command.GetIssueCommand;
+import com.epam.reportportal.extension.gitlab.command.GetIssueFieldsCommand;
+import com.epam.reportportal.extension.gitlab.command.GetIssueTypesCommand;
+import com.epam.reportportal.extension.gitlab.command.GetIssuesCommand;
 import com.epam.reportportal.extension.gitlab.command.binary.GetFileCommand;
 import com.epam.reportportal.extension.gitlab.command.connection.TestConnectionCommand;
-import com.epam.reportportal.extension.gitlab.command.utils.GitlabProperties;
 import com.epam.reportportal.extension.gitlab.event.launch.StartLaunchEventListener;
 import com.epam.reportportal.extension.gitlab.event.plugin.PluginEventHandlerFactory;
 import com.epam.reportportal.extension.gitlab.event.plugin.PluginEventListener;
 import com.epam.reportportal.extension.gitlab.info.impl.PluginInfoProviderImpl;
-import com.epam.reportportal.extension.gitlab.rest.client.GitlabClient;
 import com.epam.reportportal.extension.gitlab.rest.client.GitlabClientProvider;
-import com.epam.reportportal.extension.gitlab.rest.client.model.IssueExtended;
 import com.epam.reportportal.extension.gitlab.utils.MemoizingSupplier;
-import com.epam.ta.reportportal.dao.IntegrationRepository;
-import com.epam.ta.reportportal.dao.IntegrationTypeRepository;
-import com.epam.ta.reportportal.dao.LaunchRepository;
-import com.epam.ta.reportportal.dao.LogRepository;
-import com.epam.ta.reportportal.entity.integration.Integration;
-import com.epam.ta.reportportal.exception.ReportPortalException;
-import com.epam.ta.reportportal.ws.model.ErrorType;
-import com.epam.ta.reportportal.ws.model.externalsystem.PostFormField;
-import com.epam.ta.reportportal.ws.model.externalsystem.PostTicketRQ;
-import com.epam.ta.reportportal.ws.model.externalsystem.Ticket;
-
+import com.epam.ta.reportportal.dao.*;
 import org.jasypt.util.text.BasicTextEncryptor;
 import org.pf4j.Extension;
 import org.springframework.beans.factory.DisposableBean;
@@ -37,7 +27,10 @@ import org.springframework.context.event.ApplicationEventMulticaster;
 import org.springframework.context.support.AbstractApplicationContext;
 
 import javax.annotation.PostConstruct;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -45,7 +38,7 @@ import java.util.stream.Collectors;
  * @author Zsolt Nagyaghy
  */
 @Extension
-public class GitlabExtension implements ReportPortalExtensionPoint, DisposableBean, BtsExtension {
+public class GitlabExtension implements ReportPortalExtensionPoint, DisposableBean {
 
     private static final String PLUGIN_ID = "Gitlab";
     public static final String BINARY_DATA_PROPERTIES_FILE_ID = "binary-data.properties";
@@ -71,6 +64,12 @@ public class GitlabExtension implements ReportPortalExtensionPoint, DisposableBe
 
     @Autowired
     private IntegrationRepository integrationRepository;
+
+    @Autowired
+    private ProjectRepository projectRepository;
+
+    @Autowired
+    private TicketRepository ticketRepository;
 
     @Autowired
     private LaunchRepository launchRepository;
@@ -147,44 +146,20 @@ public class GitlabExtension implements ReportPortalExtensionPoint, DisposableBe
     private Map<String, CommonPluginCommand<?>> getCommonCommands() {
         List<CommonPluginCommand<?>> commands = new ArrayList<>();
         commands.add(new GetFileCommand(resourcesDir, BINARY_DATA_PROPERTIES_FILE_ID));
+        commands.add(new GetIssueCommand(ticketRepository, integrationRepository, gitlabClientProviderSupplier.get()));
         return commands.stream().collect(Collectors.toMap(NamedPluginCommand::getName, it -> it));
     }
 
     private Map<String, PluginCommand<?>> getCommands() {
         List<PluginCommand<?>> commands = new ArrayList<>();
         commands.add(new TestConnectionCommand(gitlabClientProviderSupplier.get()));
+
+        commands.add(new GetIssueTypesCommand(projectRepository, gitlabClientProviderSupplier.get()));
+        commands.add(new GetIssuesCommand(gitlabClientProviderSupplier.get()));
+        commands.add(new GetIssueFieldsCommand(projectRepository));
+
         return commands.stream().collect(Collectors.toMap(NamedPluginCommand::getName, it -> it));
     }
 
-    @Override
-    public boolean testConnection(Integration system) {
-        return false;
-    }
 
-    @Override
-    public Optional<Ticket> getTicket(String id, Integration system) {
-        return Optional.empty();
-    }
-
-    @Override
-    public Ticket submitTicket(PostTicketRQ ticketRQ, Integration system) {
-        return null;
-    }
-
-    @Override
-    public List<PostFormField> getTicketFields(String issueType, Integration system) {
-        return null;
-    }
-
-    @Override
-    public List<String> getIssueTypes(Integration system) {
-        GitlabClientProvider gitlabClientProvider = gitlabClientProviderSupplier.get();
-
-        GitlabClient gitlabClient = gitlabClientProvider.apiClientFactory(system.getParams());
-
-        String project = GitlabProperties.PROJECT.getParam(system.getParams())
-                .orElseThrow(() -> new ReportPortalException(ErrorType.UNABLE_INTERACT_WITH_INTEGRATION, "Project key is not specified."));
-
-        return gitlabClient.getIssues(project).stream().map(IssueExtended::getType).distinct().collect(Collectors.toList());
-    }
 }

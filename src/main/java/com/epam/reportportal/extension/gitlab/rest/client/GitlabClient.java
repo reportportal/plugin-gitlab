@@ -2,8 +2,9 @@ package com.epam.reportportal.extension.gitlab.rest.client;
 
 
 import com.epam.reportportal.extension.gitlab.rest.client.model.IssueExtended;
-import com.epam.reportportal.extension.gitlab.utils.GitlabMapper;
+import com.epam.reportportal.extension.gitlab.utils.GitlabObjectMapperProvider;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.gitlab4j.api.models.Project;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
@@ -14,61 +15,81 @@ import java.util.*;
 
 public class GitlabClient {
 
-    private static final int DEFAULT_PAGE_SIZE = 100;
-    private static final int FIRST_PAGE = 1;
-    private static final int SINGLE_PAGE_SIZE = 1;
+    private static final Integer DEFAULT_PAGE_SIZE = 100;
+    private static final Integer FIRST_PAGE = 1;
     private static final String QUERY_PAGE = "page";
     private static final String QUERY_PER_PAGE = "per_page";
     private static final String BASE_PATH = "%s/api/v4/projects/%s";
+
+    private static final String BASE_PATH_ISSUE = "%s/api/v4/issues/%s";
     private static final String ISSUES_PATH = BASE_PATH + "/issues";
+    private static final String SINGLE_ISSUES_PATH = ISSUES_PATH + "/%s";
+
+    private static final Map<String, String> pageParams = Map.of(QUERY_PER_PAGE, DEFAULT_PAGE_SIZE.toString(), QUERY_PAGE, "{page}");
 
     private final String baseUrl;
     private final String token;
-
-    GitlabMapper gitlabMapper = new GitlabMapper();
+    ObjectMapper objectMapper = new GitlabObjectMapperProvider().getObjectMapper();
 
     public GitlabClient(String baseUrl, String token) {
         this.baseUrl = baseUrl;
         this.token = token;
     }
 
-    public Project getProject(String project) {
-        Object singleEntity = getSingleEntity(project, BASE_PATH);
-        return gitlabMapper.getObjectMapper().convertValue(singleEntity, Project.class);
+    public Project getProject(String projectId) {
+        String pathUrl = String.format(BASE_PATH_ISSUE, baseUrl, projectId);
+        Object singleEntity = singleEntityRequests(pathUrl, Map.of(), HttpMethod.GET);
+        return objectMapper.convertValue(singleEntity, Project.class);
     }
 
-    public List<IssueExtended> getIssues(String project) {
+    public IssueExtended getIssue(String issueId, String projectId) {
+        String pathUrl = String.format(SINGLE_ISSUES_PATH, baseUrl, projectId, issueId);
+        Object singleEntity = singleEntityRequests(pathUrl, Map.of(), HttpMethod.GET);
+        return objectMapper.convertValue(singleEntity, IssueExtended.class);
+    }
+
+    public List<IssueExtended> getIssues(String projectId) {
         List<IssueExtended> response = new LinkedList<>();
-        getLists(project, response, ISSUES_PATH);
-        return gitlabMapper.getObjectMapper().convertValue(response, new TypeReference<>() {
+        HashMap<String, String> queryParams = new HashMap<>(pageParams);
+
+        String pathUrl = String.format(ISSUES_PATH, baseUrl, projectId);
+        getLists(response, pathUrl, queryParams);
+        return objectMapper.convertValue(response, new TypeReference<>() {
         });
     }
 
-    private <T> T getSingleEntity(String project, String path) {
-        HttpHeaders headers = getHttpHeaders();
-        HttpEntity<String> entity = new HttpEntity<>(null, headers);
-        RestTemplate restTemplate = new RestTemplate();
-        String url = getUrl(path, project);
-        return exchangeRequest(entity, restTemplate, url);
+    public IssueExtended postIssue(String projectId, Map<String, String> queryParams) {
+        String pathUrl = String.format(ISSUES_PATH, baseUrl, projectId);
+        Object singleEntity = singleEntityRequests(pathUrl, queryParams, HttpMethod.POST);
+        return objectMapper.convertValue(singleEntity, IssueExtended.class);
+
     }
 
-    private <T> void getLists(String project, List<T> response, String path) {
+    private <T> T singleEntityRequests(String path, Map<String, String> queryParams, HttpMethod method) {
         HttpHeaders headers = getHttpHeaders();
         HttpEntity<String> entity = new HttpEntity<>(null, headers);
         RestTemplate restTemplate = new RestTemplate();
-        String url = getUrl(path, project);
+        String url = getUrl(path, queryParams);
+        return exchangeRequest(entity, restTemplate, url, method);
+    }
+
+    private <T> void getLists(List<T> response, String path, Map<String, String> queryParams) {
+        HttpHeaders headers = getHttpHeaders();
+        HttpEntity<String> entity = new HttpEntity<>(null, headers);
+        RestTemplate restTemplate = new RestTemplate();
+        String url = getUrl(path, queryParams);
         exchangeRequest(FIRST_PAGE, response, entity, restTemplate, url);
     }
 
-    private <T> T exchangeRequest(HttpEntity<String> entity, RestTemplate restTemplate, String url) {
-        ResponseEntity<T> exchange = restTemplate.exchange(url, HttpMethod.GET, entity, new ParameterizedTypeReference<>() {
-        }, Map.of(QUERY_PER_PAGE, SINGLE_PAGE_SIZE, QUERY_PAGE, FIRST_PAGE));
+    private <T> T exchangeRequest(HttpEntity<String> entity, RestTemplate restTemplate, String url, HttpMethod httpMethod) {
+        ResponseEntity<T> exchange = restTemplate.exchange(url, httpMethod, entity, new ParameterizedTypeReference<>() {
+        });
         return exchange.getBody();
     }
 
     private <T> void exchangeRequest(int page, List<T> response, HttpEntity<String> entity, RestTemplate restTemplate, String url) {
         ResponseEntity<T[]> exchange = restTemplate.exchange(url, HttpMethod.GET, entity, new ParameterizedTypeReference<>() {
-        }, Map.of(QUERY_PER_PAGE, DEFAULT_PAGE_SIZE, QUERY_PAGE, page));
+        }, Map.of(QUERY_PAGE, page));
 
         T[] body = exchange.getBody();
         response.addAll(Arrays.asList(Objects.requireNonNull(body)));
@@ -78,12 +99,13 @@ public class GitlabClient {
         }
     }
 
-    private String getUrl(String path, String project) {
-        return UriComponentsBuilder.fromHttpUrl(String.format(path, baseUrl, project))
-                .queryParam(QUERY_PER_PAGE, "{per_page}")
-                .queryParam(QUERY_PAGE, "{page}")
+    private String getUrl(String url, Map<String, String> queryParams) {
+        UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromHttpUrl(url);
+        queryParams.keySet().forEach(key -> uriComponentsBuilder.queryParam(key, queryParams.get(key)));
+        return uriComponentsBuilder
                 .encode()
                 .toUriString();
+
     }
 
     private HttpHeaders getHttpHeaders() {
@@ -92,6 +114,5 @@ public class GitlabClient {
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
         return headers;
     }
-
 
 }

@@ -6,11 +6,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
-public class GitlabMapper {
+public class GitlabObjectMapperProvider {
 
     private ObjectMapper objectMapper;
 
-    public GitlabMapper() {
+    public GitlabObjectMapperProvider() {
         this.objectMapper = new ObjectMapper();
 
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
