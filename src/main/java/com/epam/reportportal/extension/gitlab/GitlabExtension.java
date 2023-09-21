@@ -7,20 +7,26 @@ import com.epam.reportportal.extension.event.PluginEvent;
 import com.epam.reportportal.extension.event.StartLaunchEvent;
 import com.epam.reportportal.extension.gitlab.command.binary.GetFileCommand;
 import com.epam.reportportal.extension.gitlab.command.connection.TestConnectionCommand;
+import com.epam.reportportal.extension.gitlab.command.utils.GitlabProperties;
 import com.epam.reportportal.extension.gitlab.event.launch.StartLaunchEventListener;
 import com.epam.reportportal.extension.gitlab.event.plugin.PluginEventHandlerFactory;
 import com.epam.reportportal.extension.gitlab.event.plugin.PluginEventListener;
 import com.epam.reportportal.extension.gitlab.info.impl.PluginInfoProviderImpl;
+import com.epam.reportportal.extension.gitlab.rest.client.GitlabClient;
 import com.epam.reportportal.extension.gitlab.rest.client.GitlabClientProvider;
+import com.epam.reportportal.extension.gitlab.rest.client.model.IssueExtended;
 import com.epam.reportportal.extension.gitlab.utils.MemoizingSupplier;
 import com.epam.ta.reportportal.dao.IntegrationRepository;
 import com.epam.ta.reportportal.dao.IntegrationTypeRepository;
 import com.epam.ta.reportportal.dao.LaunchRepository;
 import com.epam.ta.reportportal.dao.LogRepository;
 import com.epam.ta.reportportal.entity.integration.Integration;
+import com.epam.ta.reportportal.exception.ReportPortalException;
+import com.epam.ta.reportportal.ws.model.ErrorType;
 import com.epam.ta.reportportal.ws.model.externalsystem.PostFormField;
 import com.epam.ta.reportportal.ws.model.externalsystem.PostTicketRQ;
 import com.epam.ta.reportportal.ws.model.externalsystem.Ticket;
+
 import org.jasypt.util.text.BasicTextEncryptor;
 import org.pf4j.Extension;
 import org.springframework.beans.factory.DisposableBean;
@@ -172,6 +178,13 @@ public class GitlabExtension implements ReportPortalExtensionPoint, DisposableBe
 
     @Override
     public List<String> getIssueTypes(Integration system) {
-        return List.of("OPENED", "CLOSED", "REOPENED");
+        GitlabClientProvider gitlabClientProvider = gitlabClientProviderSupplier.get();
+
+        GitlabClient gitlabClient = gitlabClientProvider.apiClientFactory(system.getParams());
+
+        String project = GitlabProperties.PROJECT.getParam(system.getParams())
+                .orElseThrow(() -> new ReportPortalException(ErrorType.UNABLE_INTERACT_WITH_INTEGRATION, "Project key is not specified."));
+
+        return gitlabClient.getIssues(project).stream().map(IssueExtended::getType).distinct().collect(Collectors.toList());
     }
 }

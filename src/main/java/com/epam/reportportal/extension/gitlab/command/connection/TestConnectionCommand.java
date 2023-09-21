@@ -23,7 +23,6 @@ import com.epam.ta.reportportal.entity.integration.Integration;
 import com.epam.ta.reportportal.entity.integration.IntegrationParams;
 import com.epam.ta.reportportal.exception.ReportPortalException;
 import com.epam.ta.reportportal.ws.model.ErrorType;
-import org.gitlab4j.api.models.Project;
 
 import java.util.Map;
 
@@ -57,8 +56,7 @@ public class TestConnectionCommand implements PluginCommand<Boolean> {
 
         try {
             GitlabClient restClient = gitlabClientProvider.apiClientFactory(integrationParams);
-            Project project1 = restClient.getProject(project);
-            return project1 != null;
+            return restClient.getProject(project) != null;
         } catch (Exception e) {
             LOGGER.error("Unable to connect to GitLab: " + e.getMessage(), e);
             throw new ReportPortalException(ErrorType.UNABLE_INTERACT_WITH_INTEGRATION,

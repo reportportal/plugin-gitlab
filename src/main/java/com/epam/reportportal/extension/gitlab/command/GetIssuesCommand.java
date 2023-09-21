@@ -19,11 +19,11 @@ import com.epam.reportportal.extension.PluginCommand;
 import com.epam.reportportal.extension.gitlab.command.utils.GitlabProperties;
 import com.epam.reportportal.extension.gitlab.rest.client.GitlabClient;
 import com.epam.reportportal.extension.gitlab.rest.client.GitlabClientProvider;
+import com.epam.reportportal.extension.gitlab.rest.client.model.IssueExtended;
 import com.epam.ta.reportportal.entity.integration.Integration;
 import com.epam.ta.reportportal.entity.integration.IntegrationParams;
 import com.epam.ta.reportportal.exception.ReportPortalException;
 import com.epam.ta.reportportal.ws.model.ErrorType;
-import org.gitlab4j.api.models.Issue;
 
 import java.util.List;
 import java.util.Map;
@@ -34,7 +34,7 @@ import static org.hibernate.bytecode.BytecodeLogger.LOGGER;
 /**
  * @author <a href="mailto:pavel_bortnik@epam.com">Pavel Bortnik</a>
  */
-public class GetIssuesCommand implements PluginCommand<List<Issue>> {
+public class GetIssuesCommand implements PluginCommand<List<IssueExtended>> {
 
     private final GitlabClientProvider gitlabClientProvider;
 
@@ -48,7 +48,7 @@ public class GetIssuesCommand implements PluginCommand<List<Issue>> {
     }
 
     @Override
-    public List<Issue> executeCommand(Integration integration, Map<String, Object> params) {
+    public List<IssueExtended> executeCommand(Integration integration, Map<String, Object> params) {
         IntegrationParams integrationParams = ofNullable(integration.getParams()).orElseThrow(() -> new ReportPortalException(ErrorType.UNABLE_INTERACT_WITH_INTEGRATION,
                 "Integration params are not specified."
         ));

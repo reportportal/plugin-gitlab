@@ -1,9 +1,9 @@
 package com.epam.reportportal.extension.gitlab.rest.client;
 
 
+import com.epam.reportportal.extension.gitlab.rest.client.model.IssueExtended;
 import com.epam.reportportal.extension.gitlab.utils.GitlabMapper;
 import com.fasterxml.jackson.core.type.TypeReference;
-import org.gitlab4j.api.models.Issue;
 import org.gitlab4j.api.models.Project;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
@@ -37,8 +37,8 @@ public class GitlabClient {
         return gitlabMapper.getObjectMapper().convertValue(singleEntity, Project.class);
     }
 
-    public List<Issue> getIssues(String project) {
-        List<Issue> response = new LinkedList<>();
+    public List<IssueExtended> getIssues(String project) {
+        List<IssueExtended> response = new LinkedList<>();
         getLists(project, response, ISSUES_PATH);
         return gitlabMapper.getObjectMapper().convertValue(response, new TypeReference<>() {
         });
