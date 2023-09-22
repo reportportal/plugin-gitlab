@@ -1,20 +1,32 @@
 package com.epam.reportportal.extension.gitlab;
 
 import com.epam.reportportal.extension.*;
+import com.epam.reportportal.extension.bugtracking.BtsExtension;
 import com.epam.reportportal.extension.common.IntegrationTypeProperties;
 import com.epam.reportportal.extension.event.PluginEvent;
 import com.epam.reportportal.extension.event.StartLaunchEvent;
-import com.epam.reportportal.extension.gitlab.command.*;
+import com.epam.reportportal.extension.gitlab.command.GetIssuesCommand;
 import com.epam.reportportal.extension.gitlab.command.binary.GetFileCommand;
 import com.epam.reportportal.extension.gitlab.command.connection.TestConnectionCommand;
+import com.epam.reportportal.extension.gitlab.command.utils.GitlabProperties;
+import com.epam.reportportal.extension.gitlab.command.utils.TicketMapper;
 import com.epam.reportportal.extension.gitlab.event.launch.StartLaunchEventListener;
 import com.epam.reportportal.extension.gitlab.event.plugin.PluginEventHandlerFactory;
 import com.epam.reportportal.extension.gitlab.event.plugin.PluginEventListener;
 import com.epam.reportportal.extension.gitlab.info.impl.PluginInfoProviderImpl;
 import com.epam.reportportal.extension.gitlab.rest.client.GitlabClientProvider;
+import com.epam.reportportal.extension.gitlab.rest.client.model.IssueExtended;
 import com.epam.reportportal.extension.gitlab.utils.MemoizingSupplier;
 import com.epam.reportportal.extension.util.RequestEntityConverter;
+import com.epam.reportportal.extension.util.RequestEntityValidator;
 import com.epam.ta.reportportal.dao.*;
+import com.epam.ta.reportportal.entity.integration.Integration;
+import com.epam.ta.reportportal.exception.ReportPortalException;
+import com.epam.ta.reportportal.ws.model.ErrorType;
+import com.epam.ta.reportportal.ws.model.externalsystem.AllowedValue;
+import com.epam.ta.reportportal.ws.model.externalsystem.PostFormField;
+import com.epam.ta.reportportal.ws.model.externalsystem.PostTicketRQ;
+import com.epam.ta.reportportal.ws.model.externalsystem.Ticket;
 import org.jasypt.util.text.BasicTextEncryptor;
 import org.pf4j.Extension;
 import org.springframework.beans.factory.DisposableBean;
@@ -25,18 +37,21 @@ import org.springframework.context.event.ApplicationEventMulticaster;
 import org.springframework.context.support.AbstractApplicationContext;
 
 import javax.annotation.PostConstruct;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+
+import static com.epam.ta.reportportal.commons.Predicates.isNull;
+import static com.epam.ta.reportportal.commons.Predicates.not;
+import static com.epam.ta.reportportal.commons.validation.BusinessRule.expect;
+import static com.epam.ta.reportportal.ws.model.ErrorType.UNABLE_INTERACT_WITH_INTEGRATION;
+import static org.hibernate.bytecode.BytecodeLogger.LOGGER;
 
 /**
  * @author Zsolt Nagyaghy
  */
 @Extension
-public class GitlabExtension implements ReportPortalExtensionPoint, DisposableBean {
+public class GitlabExtension implements ReportPortalExtensionPoint, DisposableBean, BtsExtension {
 
     private static final String PLUGIN_ID = "Gitlab";
     public static final String BINARY_DATA_PROPERTIES_FILE_ID = "binary-data.properties";
@@ -144,20 +159,77 @@ public class GitlabExtension implements ReportPortalExtensionPoint, DisposableBe
     private Map<String, CommonPluginCommand<?>> getCommonCommands() {
         List<CommonPluginCommand<?>> commands = new ArrayList<>();
         commands.add(new GetFileCommand(resourcesDir, BINARY_DATA_PROPERTIES_FILE_ID));
-        commands.add(new GetIssueCommand(integrationRepository, gitlabClientProviderSupplier.get()));
         return commands.stream().collect(Collectors.toMap(NamedPluginCommand::getName, it -> it));
     }
 
     private Map<String, PluginCommand<?>> getCommands() {
         List<PluginCommand<?>> commands = new ArrayList<>();
         commands.add(new TestConnectionCommand(gitlabClientProviderSupplier.get()));
-        commands.add(new GetIssueTypesCommand(projectRepository, gitlabClientProviderSupplier.get()));
         commands.add(new GetIssuesCommand(gitlabClientProviderSupplier.get()));
-        commands.add(new GetIssueFieldsCommand(projectRepository));
-        commands.add(new PostTicketCommand(projectRepository,
-                requestEntityConverter,
-                gitlabClientProviderSupplier.get()
-        ));
         return commands.stream().collect(Collectors.toMap(NamedPluginCommand::getName, it -> it));
+    }
+
+    @Override
+    public boolean testConnection(Integration system) {
+        return false;
+    }
+
+    @Override
+    public Optional<Ticket> getTicket(String id, Integration system) {
+        GitlabClientProvider gitlabClientProvider = gitlabClientProviderSupplier.get();
+
+        String project = GitlabProperties.PROJECT.getParam(system.getParams())
+                .orElseThrow(() -> new ReportPortalException(ErrorType.UNABLE_INTERACT_WITH_INTEGRATION, "Project key is not specified."));
+
+        try {
+            return Optional.of(TicketMapper.toTicket(gitlabClientProvider.get(system.getParams()).getIssue(id, project)));
+        } catch (Exception e) {
+            LOGGER.error("Issue not found: " + e.getMessage(), e);
+            throw new ReportPortalException(ErrorType.BAD_REQUEST_ERROR, e.getMessage());
+        }
+    }
+
+    @Override
+    public Ticket submitTicket(PostTicketRQ ticketRQ, Integration system) {
+        GitlabClientProvider gitlabClientProvider = gitlabClientProviderSupplier.get();
+        RequestEntityValidator.validate(ticketRQ);
+        expect(ticketRQ.getFields(), not(isNull())).verify(UNABLE_INTERACT_WITH_INTEGRATION, "External System fields set is empty!");
+
+        String project = GitlabProperties.PROJECT.getParam(system.getParams())
+                .orElseThrow(() -> new ReportPortalException(ErrorType.UNABLE_INTERACT_WITH_INTEGRATION, "Project key is not specified."));
+
+        Map<String, List<String>> queryParams = ticketRQ.getFields().stream().collect(Collectors.toMap(PostFormField::getId, PostFormField::getValue));
+
+        try {
+            return TicketMapper.toTicket(gitlabClientProvider.get(system.getParams()).postIssue(project, queryParams));
+        } catch (Exception e) {
+            throw new ReportPortalException(ErrorType.BAD_REQUEST_ERROR, e.getMessage());
+        }
+    }
+
+    @Override
+    public List<PostFormField> getTicketFields(String issueType, Integration system) {
+        return List.of(
+                new PostFormField("title", "Title", "string", true, null, null),
+                new PostFormField("description", "Description", "string", false, null, null),
+                new PostFormField("issue_type", "Issue type", "string", false, null, List.of(
+                        new AllowedValue("issue", "Issue"),
+                        new AllowedValue("incident", "Incident"),
+                        new AllowedValue("test_case", "Test Case"))),
+                new PostFormField("confidential", "Confidential", "boolean", false, null, null),
+                new PostFormField("assignee_ids", "Assignee ID", "array", false, null, null),
+                new PostFormField("milestone_id", "Milestone ID", "string", false, null, null),
+                new PostFormField("epic_id", "Epic ID", "integer", false, null, null),
+                new PostFormField("labels", "Labels", "string", false, null, null),
+                new PostFormField("created_at", "Assignee ID", "string", false, null, null),
+                new PostFormField("due_date", "Due Date", "string", false, null, null),
+                new PostFormField("merge_request_to_resolve_discussions_of", "IID of a merge request ", "integer", false, null, null),
+                new PostFormField("discussion_to_resolve", "ID of discussion to resolve", "string", false, null, null)
+        );
+    }
+
+    @Override
+    public List<String> getIssueTypes(Integration system) {
+        return List.of("Issue", "Incident", "test_case");
     }
 }
