@@ -17,12 +17,11 @@
 package com.epam.reportportal.extension.gitlab.command;
 
 import com.epam.reportportal.extension.ProjectMemberCommand;
-import com.epam.reportportal.extension.gitlab.command.utils.GitlabMapper;
 import com.epam.reportportal.extension.gitlab.command.utils.GitlabProperties;
+import com.epam.reportportal.extension.gitlab.command.utils.TicketMapper;
 import com.epam.reportportal.extension.gitlab.rest.client.GitlabClientProvider;
 import com.epam.reportportal.extension.util.RequestEntityConverter;
 import com.epam.reportportal.extension.util.RequestEntityValidator;
-import com.epam.ta.reportportal.binary.DataStoreService;
 import com.epam.ta.reportportal.dao.ProjectRepository;
 import com.epam.ta.reportportal.entity.integration.Integration;
 import com.epam.ta.reportportal.exception.ReportPortalException;
@@ -31,6 +30,7 @@ import com.epam.ta.reportportal.ws.model.externalsystem.PostFormField;
 import com.epam.ta.reportportal.ws.model.externalsystem.PostTicketRQ;
 import com.epam.ta.reportportal.ws.model.externalsystem.Ticket;
 
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -41,7 +41,7 @@ import static com.epam.ta.reportportal.commons.validation.BusinessRule.expect;
 import static com.epam.ta.reportportal.ws.model.ErrorType.UNABLE_INTERACT_WITH_INTEGRATION;
 
 /**
- * @author <a href="mailto:pavel_bortnik@epam.com">Pavel Bortnik</a>
+ * @author Zsolt Nagyaghy
  */
 public class PostTicketCommand extends ProjectMemberCommand<Ticket> {
 
@@ -49,15 +49,11 @@ public class PostTicketCommand extends ProjectMemberCommand<Ticket> {
 
     private final GitlabClientProvider gitlabClientProvider;
 
-    private final DataStoreService dataStoreService;
-
     public PostTicketCommand(ProjectRepository projectRepository, RequestEntityConverter requestEntityConverter,
-                             GitlabClientProvider gitlabClientProvider,
-                             DataStoreService dataStoreService) {
+                             GitlabClientProvider gitlabClientProvider1) {
         super(projectRepository);
         this.requestEntityConverter = requestEntityConverter;
-        this.gitlabClientProvider = gitlabClientProvider;
-        this.dataStoreService = dataStoreService;
+        this.gitlabClientProvider = gitlabClientProvider1;
     }
 
     @Override
@@ -69,10 +65,10 @@ public class PostTicketCommand extends ProjectMemberCommand<Ticket> {
         String project = GitlabProperties.PROJECT.getParam(integration.getParams())
                 .orElseThrow(() -> new ReportPortalException(ErrorType.UNABLE_INTERACT_WITH_INTEGRATION, "Project key is not specified."));
 
-        Map<String, String> queryParams = ticketRQ.getFields().stream().collect(Collectors.toMap(PostFormField::getId, field -> field.getValue().get(0)));
+        Map<String, List<String>> queryParams = ticketRQ.getFields().stream().collect(Collectors.toMap(PostFormField::getId, PostFormField::getValue));
 
         try {
-            return GitlabMapper.toTicket(gitlabClientProvider.get(integration.getParams()).postIssue(project, queryParams));
+            return TicketMapper.toTicket(gitlabClientProvider.get(integration.getParams()).postIssue(project, queryParams));
         } catch (Exception e) {
             throw new ReportPortalException(ErrorType.BAD_REQUEST_ERROR, e.getMessage());
         }

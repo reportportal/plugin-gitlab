@@ -4,10 +4,7 @@ import com.epam.reportportal.extension.*;
 import com.epam.reportportal.extension.common.IntegrationTypeProperties;
 import com.epam.reportportal.extension.event.PluginEvent;
 import com.epam.reportportal.extension.event.StartLaunchEvent;
-import com.epam.reportportal.extension.gitlab.command.GetIssueCommand;
-import com.epam.reportportal.extension.gitlab.command.GetIssueFieldsCommand;
-import com.epam.reportportal.extension.gitlab.command.GetIssueTypesCommand;
-import com.epam.reportportal.extension.gitlab.command.GetIssuesCommand;
+import com.epam.reportportal.extension.gitlab.command.*;
 import com.epam.reportportal.extension.gitlab.command.binary.GetFileCommand;
 import com.epam.reportportal.extension.gitlab.command.connection.TestConnectionCommand;
 import com.epam.reportportal.extension.gitlab.event.launch.StartLaunchEventListener;
@@ -16,6 +13,7 @@ import com.epam.reportportal.extension.gitlab.event.plugin.PluginEventListener;
 import com.epam.reportportal.extension.gitlab.info.impl.PluginInfoProviderImpl;
 import com.epam.reportportal.extension.gitlab.rest.client.GitlabClientProvider;
 import com.epam.reportportal.extension.gitlab.utils.MemoizingSupplier;
+import com.epam.reportportal.extension.util.RequestEntityConverter;
 import com.epam.ta.reportportal.dao.*;
 import org.jasypt.util.text.BasicTextEncryptor;
 import org.pf4j.Extension;
@@ -44,7 +42,7 @@ public class GitlabExtension implements ReportPortalExtensionPoint, DisposableBe
     public static final String BINARY_DATA_PROPERTIES_FILE_ID = "binary-data.properties";
 
     private static final String DOCUMENTATION_LINK_FIELD = "documentationLink";
-    private static final String DOCUMENTATION_LINK = "https://reportportal.io/docs/plugins/Gitlab";
+    private static final String DOCUMENTATION_LINK = "https://reportportal.io/docs/plugins/GitlabBTS";
 
     private final Supplier<Map<String, PluginCommand<?>>> pluginCommandMapping = new MemoizingSupplier<>(this::getCommands);
 
@@ -69,7 +67,7 @@ public class GitlabExtension implements ReportPortalExtensionPoint, DisposableBe
     private ProjectRepository projectRepository;
 
     @Autowired
-    private TicketRepository ticketRepository;
+    private RequestEntityConverter requestEntityConverter;
 
     @Autowired
     private LaunchRepository launchRepository;
@@ -146,20 +144,20 @@ public class GitlabExtension implements ReportPortalExtensionPoint, DisposableBe
     private Map<String, CommonPluginCommand<?>> getCommonCommands() {
         List<CommonPluginCommand<?>> commands = new ArrayList<>();
         commands.add(new GetFileCommand(resourcesDir, BINARY_DATA_PROPERTIES_FILE_ID));
-        commands.add(new GetIssueCommand(ticketRepository, integrationRepository, gitlabClientProviderSupplier.get()));
+        commands.add(new GetIssueCommand(integrationRepository, gitlabClientProviderSupplier.get()));
         return commands.stream().collect(Collectors.toMap(NamedPluginCommand::getName, it -> it));
     }
 
     private Map<String, PluginCommand<?>> getCommands() {
         List<PluginCommand<?>> commands = new ArrayList<>();
         commands.add(new TestConnectionCommand(gitlabClientProviderSupplier.get()));
-
         commands.add(new GetIssueTypesCommand(projectRepository, gitlabClientProviderSupplier.get()));
         commands.add(new GetIssuesCommand(gitlabClientProviderSupplier.get()));
         commands.add(new GetIssueFieldsCommand(projectRepository));
-
+        commands.add(new PostTicketCommand(projectRepository,
+                requestEntityConverter,
+                gitlabClientProviderSupplier.get()
+        ));
         return commands.stream().collect(Collectors.toMap(NamedPluginCommand::getName, it -> it));
     }
-
-
 }

@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @author <a href="mailto:pavel_bortnik@epam.com">Pavel Bortnik</a>
+ * @author Zsolt Nagyaghy
  */
 public class GetIssueFieldsCommand extends ProjectManagerCommand<List<PostFormField>> {
 
@@ -50,6 +50,7 @@ public class GetIssueFieldsCommand extends ProjectManagerCommand<List<PostFormFi
                 new PostFormField("confidential", "Confidential", "boolean", false, null, null),
                 new PostFormField("assignee_ids", "Assignee ID", "array", false, null, null),
                 new PostFormField("milestone_id", "Milestone ID", "string", false, null, null),
+                new PostFormField("epic_id", "Epic ID", "integer", false, null, null),
                 new PostFormField("labels", "Labels", "string", false, null, null),
                 new PostFormField("created_at", "Assignee ID", "string", false, null, null),
                 new PostFormField("due_date", "Due Date", "string", false, null, null),

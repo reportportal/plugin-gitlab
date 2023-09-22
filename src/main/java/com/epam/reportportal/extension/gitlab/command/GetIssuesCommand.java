@@ -32,7 +32,7 @@ import static java.util.Optional.ofNullable;
 import static org.hibernate.bytecode.BytecodeLogger.LOGGER;
 
 /**
- * @author <a href="mailto:pavel_bortnik@epam.com">Pavel Bortnik</a>
+ * @author Zsolt Nagyaghy
  */
 public class GetIssuesCommand implements PluginCommand<List<IssueExtended>> {
 

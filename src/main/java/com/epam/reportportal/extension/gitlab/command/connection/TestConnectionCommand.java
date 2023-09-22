@@ -30,7 +30,7 @@ import static java.util.Optional.ofNullable;
 import static org.hibernate.bytecode.BytecodeLogger.LOGGER;
 
 /**
- * @author <a href="mailto:pavel_bortnik@epam.com">Pavel Bortnik</a>
+ * @author Zsolt Nagyaghy
  */
 public class TestConnectionCommand implements PluginCommand<Boolean> {
 
@@ -56,9 +56,6 @@ public class TestConnectionCommand implements PluginCommand<Boolean> {
 
         try {
             GitlabClient restClient = gitlabClientProvider.get(integrationParams);
-
-            restClient.postIssue(project, Map.of());
-
             return restClient.getProject(project) != null;
         } catch (Exception e) {
             LOGGER.error("Unable to connect to GitLab: " + e.getMessage(), e);

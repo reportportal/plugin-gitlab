@@ -31,9 +31,10 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static java.util.Optional.ofNullable;
+import static org.hibernate.bytecode.BytecodeLogger.LOGGER;
 
 /**
- * @author <a href="mailto:pavel_bortnik@epam.com">Pavel Bortnik</a>
+ * @author Zsolt Nagyaghy
  */
 public class GetIssueTypesCommand extends ProjectManagerCommand<List<String>> {
 
@@ -51,18 +52,6 @@ public class GetIssueTypesCommand extends ProjectManagerCommand<List<String>> {
 
     @Override
     protected List<String> invokeCommand(Integration integration, Map<String, Object> params) {
-        IntegrationParams integrationParams = ofNullable(integration.getParams()).orElseThrow(() -> new ReportPortalException(ErrorType.UNABLE_INTERACT_WITH_INTEGRATION,
-                "Integration params are not specified."
-        ));
-
-        String project = GitlabProperties.PROJECT.getParam(integrationParams)
-                .orElseThrow(() -> new ReportPortalException(ErrorType.UNABLE_INTERACT_WITH_INTEGRATION, "Project key is not specified."));
-
-        try {
-            GitlabClient restClient = gitlabClientProvider.get(integrationParams);
-            return restClient.getIssues(project).stream().map(IssueExtended::getType).distinct().collect(Collectors.toList());
-        } catch (Exception e) {
-            throw new ReportPortalException(ErrorType.UNABLE_INTERACT_WITH_INTEGRATION, "Check connection settings.");
-        }
+        return List.of("Issue", "Incident", "test_case");
     }
 }

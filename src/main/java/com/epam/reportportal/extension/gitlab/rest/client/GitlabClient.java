@@ -13,6 +13,9 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.*;
 
+/**
+ * @author Zsolt Nagyaghy
+ */
 public class GitlabClient {
 
     private static final Integer DEFAULT_PAGE_SIZE = 100;
@@ -20,12 +23,9 @@ public class GitlabClient {
     private static final String QUERY_PAGE = "page";
     private static final String QUERY_PER_PAGE = "per_page";
     private static final String BASE_PATH = "%s/api/v4/projects/%s";
-
-    private static final String BASE_PATH_ISSUE = "%s/api/v4/issues/%s";
     private static final String ISSUES_PATH = BASE_PATH + "/issues";
     private static final String SINGLE_ISSUES_PATH = ISSUES_PATH + "/%s";
-
-    private static final Map<String, String> pageParams = Map.of(QUERY_PER_PAGE, DEFAULT_PAGE_SIZE.toString(), QUERY_PAGE, "{page}");
+    private static final Map<String, List<String>> pageParams = Map.of(QUERY_PER_PAGE, List.of(DEFAULT_PAGE_SIZE.toString()), QUERY_PAGE, List.of("{page}"));
 
     private final String baseUrl;
     private final String token;
@@ -37,7 +37,7 @@ public class GitlabClient {
     }
 
     public Project getProject(String projectId) {
-        String pathUrl = String.format(BASE_PATH_ISSUE, baseUrl, projectId);
+        String pathUrl = String.format(BASE_PATH, baseUrl, projectId);
         Object singleEntity = singleEntityRequests(pathUrl, Map.of(), HttpMethod.GET);
         return objectMapper.convertValue(singleEntity, Project.class);
     }
@@ -50,7 +50,7 @@ public class GitlabClient {
 
     public List<IssueExtended> getIssues(String projectId) {
         List<IssueExtended> response = new LinkedList<>();
-        HashMap<String, String> queryParams = new HashMap<>(pageParams);
+        HashMap<String, List<String>> queryParams = new HashMap<>(pageParams);
 
         String pathUrl = String.format(ISSUES_PATH, baseUrl, projectId);
         getLists(response, pathUrl, queryParams);
@@ -58,14 +58,14 @@ public class GitlabClient {
         });
     }
 
-    public IssueExtended postIssue(String projectId, Map<String, String> queryParams) {
+    public IssueExtended postIssue(String projectId, Map<String, List<String>> queryParams) {
         String pathUrl = String.format(ISSUES_PATH, baseUrl, projectId);
         Object singleEntity = singleEntityRequests(pathUrl, queryParams, HttpMethod.POST);
         return objectMapper.convertValue(singleEntity, IssueExtended.class);
 
     }
 
-    private <T> T singleEntityRequests(String path, Map<String, String> queryParams, HttpMethod method) {
+    private <T> T singleEntityRequests(String path, Map<String, List<String>> queryParams, HttpMethod method) {
         HttpHeaders headers = getHttpHeaders();
         HttpEntity<String> entity = new HttpEntity<>(null, headers);
         RestTemplate restTemplate = new RestTemplate();
@@ -73,7 +73,7 @@ public class GitlabClient {
         return exchangeRequest(entity, restTemplate, url, method);
     }
 
-    private <T> void getLists(List<T> response, String path, Map<String, String> queryParams) {
+    private <T> void getLists(List<T> response, String path, Map<String, List<String>> queryParams) {
         HttpHeaders headers = getHttpHeaders();
         HttpEntity<String> entity = new HttpEntity<>(null, headers);
         RestTemplate restTemplate = new RestTemplate();
@@ -99,7 +99,7 @@ public class GitlabClient {
         }
     }
 
-    private String getUrl(String url, Map<String, String> queryParams) {
+    private String getUrl(String url, Map<String, List<String>> queryParams) {
         UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromHttpUrl(url);
         queryParams.keySet().forEach(key -> uriComponentsBuilder.queryParam(key, queryParams.get(key)));
         return uriComponentsBuilder

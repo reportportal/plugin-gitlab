@@ -6,8 +6,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
+/**
+ * @author Zsolt Nagyaghy
+ */
 public class GitlabObjectMapperProvider {
-
     private ObjectMapper objectMapper;
 
     public GitlabObjectMapperProvider() {

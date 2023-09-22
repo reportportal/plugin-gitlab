@@ -17,7 +17,7 @@ import java.util.Properties;
 import static java.util.Optional.ofNullable;
 
 /**
- * @author <a href="mailto:ivan_budayeu@epam.com">Zsolt Nagyaghy</a>
+ * @author <a href="mailto:ivan_budayeu@epam.com">Ivan Budayeu</a>
  */
 public class PluginInfoProviderImpl implements PluginInfoProvider {
 
