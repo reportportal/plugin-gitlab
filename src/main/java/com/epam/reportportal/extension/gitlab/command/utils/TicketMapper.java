@@ -6,7 +6,7 @@ import com.epam.ta.reportportal.ws.model.externalsystem.Ticket;
 public class TicketMapper {
     public static Ticket toTicket(IssueExtended input) {
         Ticket ticket = new Ticket();
-        ticket.setId(input.getId().toString());
+        ticket.setId(input.getIid().toString());
         ticket.setSummary(input.getDescription());
         ticket.setStatus(input.getState().toString());
         ticket.setTicketUrl(input.getWebUrl());
