@@ -6,6 +6,8 @@ import com.epam.reportportal.extension.common.IntegrationTypeProperties;
 import com.epam.reportportal.extension.event.PluginEvent;
 import com.epam.reportportal.extension.event.StartLaunchEvent;
 import com.epam.reportportal.extension.gitlab.command.GetIssuesCommand;
+import com.epam.reportportal.extension.gitlab.command.RetrieveCreationParamsCommand;
+import com.epam.reportportal.extension.gitlab.command.RetrieveUpdateParamsCommand;
 import com.epam.reportportal.extension.gitlab.command.binary.GetFileCommand;
 import com.epam.reportportal.extension.gitlab.command.connection.TestConnectionCommand;
 import com.epam.reportportal.extension.gitlab.command.utils.GitlabProperties;
@@ -15,9 +17,7 @@ import com.epam.reportportal.extension.gitlab.event.plugin.PluginEventHandlerFac
 import com.epam.reportportal.extension.gitlab.event.plugin.PluginEventListener;
 import com.epam.reportportal.extension.gitlab.info.impl.PluginInfoProviderImpl;
 import com.epam.reportportal.extension.gitlab.rest.client.GitlabClientProvider;
-import com.epam.reportportal.extension.gitlab.rest.client.model.IssueExtended;
 import com.epam.reportportal.extension.gitlab.utils.MemoizingSupplier;
-import com.epam.reportportal.extension.util.RequestEntityConverter;
 import com.epam.reportportal.extension.util.RequestEntityValidator;
 import com.epam.ta.reportportal.dao.*;
 import com.epam.ta.reportportal.entity.integration.Integration;
@@ -80,9 +80,6 @@ public class GitlabExtension implements ReportPortalExtensionPoint, DisposableBe
 
     @Autowired
     private ProjectRepository projectRepository;
-
-    @Autowired
-    private RequestEntityConverter requestEntityConverter;
 
     @Autowired
     private LaunchRepository launchRepository;
@@ -158,6 +155,8 @@ public class GitlabExtension implements ReportPortalExtensionPoint, DisposableBe
 
     private Map<String, CommonPluginCommand<?>> getCommonCommands() {
         List<CommonPluginCommand<?>> commands = new ArrayList<>();
+        commands.add(new RetrieveCreationParamsCommand(textEncryptor));
+        commands.add(new RetrieveUpdateParamsCommand(textEncryptor));
         commands.add(new GetFileCommand(resourcesDir, BINARY_DATA_PROPERTIES_FILE_ID));
         return commands.stream().collect(Collectors.toMap(NamedPluginCommand::getName, it -> it));
     }
