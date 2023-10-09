@@ -1,0 +1,41 @@
+{
+  "compilerOptions": {
+    "sourceMap": true,
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "downlevelIteration": true,
+    "declaration": true,
+    "allowJs": true,
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "module": "ES2015",
+    "target": "ES2015",
+    "baseUrl": "./",
+    "strict": true,
+    "jsx": "react-jsx",
+    "paths": {
+      "*": ["node_modules/*"],
+      "moduleFederation/components": ["src/types/moduleFederation/componentsTypes"],
+      "moduleFederation/selectors": ["src/types/moduleFederation/selectorsTypes"],
+      "moduleFederation/store": ["src/types/moduleFederation/storeTypes"],
+      "moduleFederation/common": ["src/types/moduleFederation/common"],
+      "moduleFederation/utils": ["src/types/moduleFederation/utilsTypes"],
+      "moduleFederation/libs": ["src/types/moduleFederation/libsTypes"],
+      "moduleFederation/actions": ["src/types/moduleFederation/actionsTypes"],
+      "moduleFederation/validators": ["src/types/moduleFederation/validatorTypes"],
+      "extension/constants": ["src/constants"],
+      "utils": ["src/utils"],
+      "hooks": ["src/hooks"],
+      "extension/types": ["src/types/pluginTypes"]
+
+    },
+    "typeRoots": ["node_modules/@types"],
+    "outDir": "build/types",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": false,
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true
+  },
+  "include": ["src/**/*", "src/**/*.d.ts"],
+  "exclude": ["node_modules", "build"]
+}

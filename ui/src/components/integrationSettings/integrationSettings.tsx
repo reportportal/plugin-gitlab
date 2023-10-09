@@ -1,6 +1,6 @@
-import { LABELS } from 'components/constans';
+import { LABELS } from '../constants';
 
-export const IntegrationSettings = (props) => {
+export const IntegrationSettings = (props: any) => {
   const { data, goToPreviousPage, onUpdate, isGlobal, ...extensionProps } = props;
   const {
     lib: { React, useDispatch },
@@ -10,12 +10,8 @@ export const IntegrationSettings = (props) => {
       BtsAuthFieldsInfo,
       BtsPropertiesForIssueForm,
     },
-    utils: {
-      getDefectFormFields,
-    },
-    constants: {
-      BTS_FIELDS_FORM,
-    }
+    utils: { getDefectFormFields },
+    constants: { BTS_FIELDS_FORM },
   } = extensionProps;
 
   const dispatch = useDispatch();
@@ -31,26 +27,28 @@ export const IntegrationSettings = (props) => {
     },
   ];
 
-  const getConfirmationFunc = (testConnection) => (integrationData, integrationMetaData) => {
-    onUpdate(
-      integrationData,
-      () => {
-        dispatch(hideModalAction());
-        testConnection();
-      },
-      integrationMetaData,
-    );
-  };
+  const getConfirmationFunc =
+    (testConnection: any) => (integrationData: any, integrationMetaData: any) => {
+      onUpdate(
+        integrationData,
+        () => {
+          dispatch(hideModalAction());
+          testConnection();
+        },
+        integrationMetaData
+      );
+    };
 
-  const editAuthorizationClickHandler = (testConnection) => {
+  const editAuthorizationClickHandler = (testConnection: any) => {
     const {
       data: { name, integrationParameters, integrationType },
     } = props;
 
     dispatch(
       showModalAction({
-        id: 'addIntegrationModal',
+        id: 'createProjectIntegrationModal',
         data: {
+          modalTitle: 'Edit authorization',
           onConfirm: getConfirmationFunc(testConnection),
           instanceType: integrationType.name,
           customProps: {
@@ -61,7 +59,7 @@ export const IntegrationSettings = (props) => {
             editAuthMode: true,
           },
         },
-      }),
+      })
     );
   };
 
@@ -70,7 +68,7 @@ export const IntegrationSettings = (props) => {
     onClick: editAuthorizationClickHandler,
   });
 
-  const onSubmit = (integrationData, callback, metaData) => {
+  const onSubmit = (integrationData: any, callback: any, metaData: any) => {
     const { fields, checkedFieldsIds = {}, ...meta } = metaData;
     const defectFormFields = getDefectFormFields(fields, checkedFieldsIds, integrationData);
 
