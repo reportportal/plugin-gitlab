@@ -1,9 +1,12 @@
+import { IntegrationSettingsInterface, Metadata, OnSubmit } from 'moduleFederation/common';
+import { FC } from 'react';
+
 import { LABELS } from '../constants';
 
-export const IntegrationSettings = (props: any) => {
+export const IntegrationSettings: FC<IntegrationSettingsInterface> = (props) => {
   const { data, goToPreviousPage, onUpdate, isGlobal, ...extensionProps } = props;
   const {
-    lib: { React, useDispatch },
+    lib: { useDispatch },
     actions: { showModalAction, hideModalAction },
     components: {
       IntegrationSettings: IntegrationSettingsContainer,
@@ -28,7 +31,7 @@ export const IntegrationSettings = (props: any) => {
   ];
 
   const getConfirmationFunc =
-    (testConnection: any) => (integrationData: any, integrationMetaData: any) => {
+    (testConnection: () => void) => (integrationData: Metadata, integrationMetaData: Metadata) => {
       onUpdate(
         integrationData,
         () => {
@@ -39,7 +42,7 @@ export const IntegrationSettings = (props: any) => {
       );
     };
 
-  const editAuthorizationClickHandler = (testConnection: any) => {
+  const editAuthorizationClickHandler = (testConnection: () => void) => {
     const {
       data: { name, integrationParameters, integrationType },
     } = props;
@@ -68,7 +71,7 @@ export const IntegrationSettings = (props: any) => {
     onClick: editAuthorizationClickHandler,
   });
 
-  const onSubmit = (integrationData: any, callback: any, metaData: any) => {
+  const onSubmit: OnSubmit = (integrationData, callback, metaData) => {
     const { fields, checkedFieldsIds = {}, ...meta } = metaData;
     const defectFormFields = getDefectFormFields(fields, checkedFieldsIds, integrationData);
 

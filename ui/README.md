@@ -19,7 +19,7 @@ window.RP.overrideExtension(pluginName, url);
 ```
 function call in browser to override the plugin UI assets in favor of your local development changes, f.e.
 ```javascript
-window.RP.overrideExtension('plugin name', 'http://localhost:9090');
+window.RP.overrideExtension('GitLab', 'http://localhost:9090');
 ```
 
 Build the UI source code: `npm run build`

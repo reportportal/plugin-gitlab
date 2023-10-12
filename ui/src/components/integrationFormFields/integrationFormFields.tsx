@@ -1,8 +1,9 @@
-import { useEffect } from 'react';
+import { IntegrationFormFieldsInterface } from 'moduleFederation/common';
+import { FC, useEffect } from 'react';
 
 import { LABELS } from '../constants';
 
-export const IntegrationFormFields = (props: any) => {
+export const IntegrationFormFields: FC<IntegrationFormFieldsInterface> = (props) => {
   const { initialize, disabled, lineAlign, initialData, updateMetaData, ...extensionProps } = props;
   const {
     components: { FieldErrorHint, FieldElement, FieldText, FieldTextFlex },
