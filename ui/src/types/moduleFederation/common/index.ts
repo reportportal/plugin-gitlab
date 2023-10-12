@@ -3,7 +3,6 @@ import {
   IntegrationFormFieldsComponentsInterface,
   IntegrationSettingsComponentsInterface,
 } from 'moduleFederation/components';
-import { LibInterface } from 'moduleFederation/libs';
 import { UtilsInterface } from 'moduleFederation/utils';
 import { ValidatorsInterface } from 'moduleFederation/validators';
 
@@ -59,7 +58,6 @@ export interface IntegrationSettingsInterface {
   goToPreviousPage: () => void;
   onUpdate: (data: object, cb: () => void, metaData: object) => {};
   isGlobal: boolean;
-  lib: LibInterface;
   actions: ActionsInterface;
   components: IntegrationSettingsComponentsInterface;
   utils: UtilsInterface;

@@ -1,12 +1,12 @@
 import { IntegrationSettingsInterface, Metadata, OnSubmit } from 'moduleFederation/common';
-import { FC } from 'react';
+import React, { FC } from 'react';
+import { useDispatch } from 'react-redux';
 
 import { LABELS } from '../constants';
 
 export const IntegrationSettings: FC<IntegrationSettingsInterface> = (props) => {
   const { data, goToPreviousPage, onUpdate, isGlobal, ...extensionProps } = props;
   const {
-    lib: { useDispatch },
     actions: { showModalAction, hideModalAction },
     components: {
       IntegrationSettings: IntegrationSettingsContainer,

@@ -1,4 +1,4 @@
-# Plugin template for Epam Report Portal
+# Plugin GitLab for Epam Report Portal
 
 ## UI
 
@@ -13,7 +13,7 @@ npm run dev # Run webpack in dev watch mode
 npm run start # Serve built files
 ```
 
-_Available only from RP v5.8_: use
+_Available only from RP v23.3_: use
 ```javascript
 window.RP.overrideExtension(pluginName, url);
 ```

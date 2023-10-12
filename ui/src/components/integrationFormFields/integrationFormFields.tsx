@@ -1,7 +1,12 @@
 import { IntegrationFormFieldsInterface } from 'moduleFederation/common';
-import { FC, useEffect } from 'react';
+import React, { FC, useEffect } from 'react';
 
 import { LABELS } from '../constants';
+
+const INTEGRATION_NAME = 'integrationName';
+const URL = 'url';
+const PROJECT = 'project';
+const API_TOKEN = 'apiToken';
 
 export const IntegrationFormFields: FC<IntegrationFormFieldsInterface> = (props) => {
   const { initialize, disabled, lineAlign, initialData, updateMetaData, ...extensionProps } = props;
@@ -14,14 +19,14 @@ export const IntegrationFormFields: FC<IntegrationFormFieldsInterface> = (props)
   useEffect(() => {
     initialize(initialData);
     updateMetaData({
-      [SECRET_FIELDS_KEY]: ['apiToken'],
+      [SECRET_FIELDS_KEY]: [API_TOKEN],
     });
   }, []);
 
   return (
     <>
       <FieldElement
-        name="integrationName"
+        name={INTEGRATION_NAME}
         label={LABELS.INTEGRATION_NAME}
         validate={btsIntegrationName}
         disabled={disabled}
@@ -31,13 +36,13 @@ export const IntegrationFormFields: FC<IntegrationFormFieldsInterface> = (props)
           <FieldText maxLength={55} defaultWidth={false} />
         </FieldErrorHint>
       </FieldElement>
-      <FieldElement name="url" label={LABELS.URL} validate={btsUrl} disabled={disabled} isRequired>
+      <FieldElement name={URL} label={LABELS.URL} validate={btsUrl} disabled={disabled} isRequired>
         <FieldErrorHint provideHint={false}>
           <FieldText defaultWidth={false} />
         </FieldErrorHint>
       </FieldElement>
       <FieldElement
-        name="project"
+        name={PROJECT}
         label={LABELS.PROJECT}
         validate={btsProjectId}
         disabled={disabled}
@@ -48,7 +53,7 @@ export const IntegrationFormFields: FC<IntegrationFormFieldsInterface> = (props)
         </FieldErrorHint>
       </FieldElement>
       <FieldElement
-        name="apiToken"
+        name={API_TOKEN}
         label={LABELS.TOKEN}
         disabled={disabled}
         validate={requiredField}

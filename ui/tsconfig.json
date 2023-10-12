@@ -15,18 +15,10 @@
     "paths": {
       "*": ["node_modules/*"],
       "moduleFederation/components": ["src/types/moduleFederation/componentsTypes"],
-      "moduleFederation/selectors": ["src/types/moduleFederation/selectorsTypes"],
-      "moduleFederation/store": ["src/types/moduleFederation/storeTypes"],
       "moduleFederation/common": ["src/types/moduleFederation/common"],
       "moduleFederation/utils": ["src/types/moduleFederation/utilsTypes"],
-      "moduleFederation/libs": ["src/types/moduleFederation/libsTypes"],
       "moduleFederation/actions": ["src/types/moduleFederation/actionsTypes"],
       "moduleFederation/validators": ["src/types/moduleFederation/validatorTypes"],
-      "extension/constants": ["src/constants"],
-      "utils": ["src/utils"],
-      "hooks": ["src/hooks"],
-      "extension/types": ["src/types/pluginTypes"]
-
     },
     "typeRoots": ["node_modules/@types"],
     "outDir": "build/types",
