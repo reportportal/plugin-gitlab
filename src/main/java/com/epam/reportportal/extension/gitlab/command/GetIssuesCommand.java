@@ -54,7 +54,7 @@ public class GetIssuesCommand implements PluginCommand<List<IssueExtended>> {
         ));
 
         String project = GitlabProperties.PROJECT.getParam(integrationParams)
-                .orElseThrow(() -> new ReportPortalException(ErrorType.UNABLE_INTERACT_WITH_INTEGRATION, "Project key is not specified."));
+                .orElseThrow(() -> new ReportPortalException(ErrorType.UNABLE_INTERACT_WITH_INTEGRATION, "Project ID is not specified."));
 
         try {
             GitlabClient restClient = gitlabClientProvider.get(integrationParams);

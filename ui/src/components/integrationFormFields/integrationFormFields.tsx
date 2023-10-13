@@ -1,5 +1,5 @@
 import { IntegrationFormFieldsInterface } from 'moduleFederation/common';
-import React, { FC, useEffect } from 'react';
+import { FC, useEffect } from 'react';
 
 import { LABELS } from '../constants';
 

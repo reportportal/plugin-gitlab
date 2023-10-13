@@ -26,7 +26,6 @@
   "rules": {
     "import/prefer-default-export": "off",
     "import/no-named-as-default": "off",
-    "import/newline-after-import": "off",
     "import/no-extraneous-dependencies": "off",
     "react/react-in-jsx-scope": "off",
     "react/jsx-filename-extension": [2, { "extensions": [".ts", ".tsx"] }],

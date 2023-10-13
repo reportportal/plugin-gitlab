@@ -1,5 +1,5 @@
 import { IntegrationSettingsInterface, Metadata, OnSubmit } from 'moduleFederation/common';
-import React, { FC } from 'react';
+import { FC } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { LABELS } from '../constants';
