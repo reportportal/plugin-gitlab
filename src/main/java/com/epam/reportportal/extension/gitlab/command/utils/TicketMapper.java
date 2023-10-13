@@ -7,7 +7,7 @@ public class TicketMapper {
     public static Ticket toTicket(IssueExtended input) {
         Ticket ticket = new Ticket();
         ticket.setId(input.getIid().toString());
-        ticket.setSummary(input.getDescription());
+        ticket.setSummary(input.getTitle());
         ticket.setStatus(input.getState().toString());
         ticket.setTicketUrl(input.getWebUrl());
         return ticket;

@@ -23,5 +23,5 @@ project.ext {
 }
 
 wrapper {
-    gradleVersion = '6.8'
+    gradleVersion = '5.4.1'
 }

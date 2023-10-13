@@ -160,6 +160,7 @@ public class GitlabExtension implements ReportPortalExtensionPoint, DisposableBe
         commands.add(new RetrieveCreationParamsCommand(textEncryptor));
         commands.add(new RetrieveUpdateParamsCommand(textEncryptor));
         commands.add(new GetFileCommand(resourcesDir, BINARY_DATA_PROPERTIES_FILE_ID));
+        commands.add(new GetIssueCommand(gitlabClientProviderSupplier.get(), integrationRepository));
         return commands.stream().collect(Collectors.toMap(NamedPluginCommand::getName, it -> it));
     }
 
@@ -167,7 +168,6 @@ public class GitlabExtension implements ReportPortalExtensionPoint, DisposableBe
         List<PluginCommand<?>> commands = new ArrayList<>();
         commands.add(new TestConnectionCommand(gitlabClientProviderSupplier.get()));
         commands.add(new GetIssuesCommand(gitlabClientProviderSupplier.get()));
-        commands.add(new GetIssueCommand(gitlabClientProviderSupplier.get()));
         return commands.stream().collect(Collectors.toMap(NamedPluginCommand::getName, it -> it));
     }
 
