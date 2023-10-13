@@ -28,7 +28,9 @@ public enum GitlabProperties {
 
 	PROJECT("project"),
 	API_TOKEN("apiToken"),
-	URL("url");
+	URL("url"),
+
+	ISSUE_ID("issueId");
 
 	private final String name;
 

@@ -5,6 +5,7 @@ import com.epam.reportportal.extension.bugtracking.BtsExtension;
 import com.epam.reportportal.extension.common.IntegrationTypeProperties;
 import com.epam.reportportal.extension.event.PluginEvent;
 import com.epam.reportportal.extension.event.StartLaunchEvent;
+import com.epam.reportportal.extension.gitlab.command.GetIssueCommand;
 import com.epam.reportportal.extension.gitlab.command.GetIssuesCommand;
 import com.epam.reportportal.extension.gitlab.command.RetrieveCreationParamsCommand;
 import com.epam.reportportal.extension.gitlab.command.RetrieveUpdateParamsCommand;
@@ -51,6 +52,7 @@ import static org.hibernate.bytecode.BytecodeLogger.LOGGER;
  * @author Zsolt Nagyaghy
  */
 @Extension
+//TODO: Move BtsExtension methods to commands
 public class GitlabExtension implements ReportPortalExtensionPoint, DisposableBean, BtsExtension {
 
     private static final String PLUGIN_ID = "Gitlab";
@@ -165,6 +167,7 @@ public class GitlabExtension implements ReportPortalExtensionPoint, DisposableBe
         List<PluginCommand<?>> commands = new ArrayList<>();
         commands.add(new TestConnectionCommand(gitlabClientProviderSupplier.get()));
         commands.add(new GetIssuesCommand(gitlabClientProviderSupplier.get()));
+        commands.add(new GetIssueCommand(gitlabClientProviderSupplier.get()));
         return commands.stream().collect(Collectors.toMap(NamedPluginCommand::getName, it -> it));
     }
 
