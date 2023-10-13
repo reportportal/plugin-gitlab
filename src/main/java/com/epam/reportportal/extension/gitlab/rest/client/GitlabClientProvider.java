@@ -20,10 +20,10 @@ public class GitlabClientProvider {
 
     public GitlabClient get(IntegrationParams integrationParams) {
         String credentials = textEncryptor.decrypt(GitlabProperties.API_TOKEN.getParam(integrationParams)
-                .orElseThrow(() -> new ReportPortalException(ErrorType.UNABLE_INTERACT_WITH_INTEGRATION, "Api token is not specified.")));
+                .orElseThrow(() -> new ReportPortalException(ErrorType.UNABLE_INTERACT_WITH_INTEGRATION, "Access token is not specified.")));
         String url = GitlabProperties.URL.getParam(integrationParams)
                 .orElseThrow(() -> new ReportPortalException(ErrorType.UNABLE_INTERACT_WITH_INTEGRATION,
-                        "Url to the Gitlab is not specified."
+                        "Url to the GitLab is not specified."
                 ));
         return new GitlabClient(url, credentials);
     }

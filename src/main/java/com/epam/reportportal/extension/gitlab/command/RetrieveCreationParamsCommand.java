@@ -62,7 +62,7 @@ public class RetrieveCreationParamsCommand implements CommonPluginCommand<Map<St
         );
         resultParams.put(GitlabProperties.API_TOKEN.getName(),
                 textEncryptor.encrypt(GitlabProperties.API_TOKEN.getParam(integrationParams)
-                        .orElseThrow(() -> new ReportPortalException(UNABLE_INTERACT_WITH_INTEGRATION, "API token value is not specified.")))
+                        .orElseThrow(() -> new ReportPortalException(UNABLE_INTERACT_WITH_INTEGRATION, "Access token value is not specified.")))
         );
 
         return resultParams;

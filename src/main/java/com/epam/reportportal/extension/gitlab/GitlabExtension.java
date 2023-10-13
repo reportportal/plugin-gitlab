@@ -9,7 +9,6 @@ import com.epam.reportportal.extension.gitlab.command.GetIssueCommand;
 import com.epam.reportportal.extension.gitlab.command.GetIssuesCommand;
 import com.epam.reportportal.extension.gitlab.command.RetrieveCreationParamsCommand;
 import com.epam.reportportal.extension.gitlab.command.RetrieveUpdateParamsCommand;
-import com.epam.reportportal.extension.gitlab.command.binary.GetFileCommand;
 import com.epam.reportportal.extension.gitlab.command.connection.TestConnectionCommand;
 import com.epam.reportportal.extension.gitlab.command.utils.GitlabProperties;
 import com.epam.reportportal.extension.gitlab.command.utils.TicketMapper;
@@ -55,7 +54,7 @@ import static org.hibernate.bytecode.BytecodeLogger.LOGGER;
 //TODO: Move BtsExtension methods to commands
 public class GitlabExtension implements ReportPortalExtensionPoint, DisposableBean, BtsExtension {
 
-    private static final String PLUGIN_ID = "Gitlab";
+    private static final String PLUGIN_ID = "GitLab";
     public static final String BINARY_DATA_PROPERTIES_FILE_ID = "binary-data.properties";
 
     private static final String DOCUMENTATION_LINK_FIELD = "documentationLink";
