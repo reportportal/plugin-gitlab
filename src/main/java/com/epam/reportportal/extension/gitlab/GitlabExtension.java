@@ -158,7 +158,6 @@ public class GitlabExtension implements ReportPortalExtensionPoint, DisposableBe
         List<CommonPluginCommand<?>> commands = new ArrayList<>();
         commands.add(new RetrieveCreationParamsCommand(textEncryptor));
         commands.add(new RetrieveUpdateParamsCommand(textEncryptor));
-        commands.add(new GetFileCommand(resourcesDir, BINARY_DATA_PROPERTIES_FILE_ID));
         commands.add(new GetIssueCommand(gitlabClientProviderSupplier.get(), integrationRepository));
         return commands.stream().collect(Collectors.toMap(NamedPluginCommand::getName, it -> it));
     }
