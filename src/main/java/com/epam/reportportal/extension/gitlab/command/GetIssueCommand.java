@@ -51,11 +51,11 @@ public class GetIssueCommand implements CommonPluginCommand<Ticket> {
   public Ticket executeCommand(Map<String, Object> params) {
     final Long projectId = (Long) Optional.ofNullable(params.get(PROJECT_ID))
         .orElseThrow(() -> new ReportPortalException(ErrorType.BAD_REQUEST_ERROR, PROJECT_ID + " must be provided"));
-    String btsProject = GitlabProperties.BTS_PROJECT.getParam(params)
+    String btsProject = GitlabProperties.PROJECT.getParam(params)
         .orElseThrow(() -> new ReportPortalException(ErrorType.UNABLE_INTERACT_WITH_INTEGRATION, "Bts Project id is not specified."));
-    String issueId = GitlabProperties.ISSUE_ID.getParam(params)
+    String issueId = GitlabProperties.TICKET_ID.getParam(params)
         .orElseThrow(() -> new ReportPortalException(ErrorType.UNABLE_INTERACT_WITH_INTEGRATION, "Issue id is not specified."));
-    final String btsUrl = GitlabProperties.BASE_URL.getParam(params)
+    final String btsUrl = GitlabProperties.URL.getParam(params)
         .orElseThrow(() -> new ReportPortalException(ErrorType.UNABLE_INTERACT_WITH_INTEGRATION, "Url is not specified."));
     final Integration integration = integrationRepository.findProjectBtsByUrlAndLinkedProject(btsUrl, btsProject, projectId)
         .orElseGet(() -> integrationRepository.findGlobalBtsByUrlAndLinkedProject(btsUrl, btsProject)
