@@ -36,7 +36,8 @@
     ],
     "simple-import-sort/imports": "error",
     "simple-import-sort/exports": "error",
-    "react/prop-types": "off"
+    "react/prop-types": "off",
+    "no-else-return": "off"
   },
   "settings": {
     "import/resolver": {

@@ -7,12 +7,12 @@ const INTEGRATION_NAME = 'integrationName';
 const URL = 'url';
 const PROJECT = 'project';
 const API_TOKEN = 'apiToken';
-
+const PROJECT_ID_MAX_LENGTH = 55;
 export const IntegrationFormFields: FC<IntegrationFormFieldsInterface> = (props) => {
   const { initialize, disabled, lineAlign, initialData, updateMetaData, ...extensionProps } = props;
   const {
     components: { FieldErrorHint, FieldElement, FieldText, FieldTextFlex },
-    validators: { requiredField, btsUrl, btsProjectId, btsIntegrationName },
+    validators: { requiredField, btsUrl, btsIntegrationName },
     constants: { SECRET_FIELDS_KEY },
   } = extensionProps;
 
@@ -22,6 +22,17 @@ export const IntegrationFormFields: FC<IntegrationFormFieldsInterface> = (props)
       [SECRET_FIELDS_KEY]: [API_TOKEN],
     });
   }, []);
+
+  const projectIdValidator = (value: string) => {
+    const trimmedValue = value ? value.trim() : value;
+    if (trimmedValue === '' || trimmedValue === undefined || value.length > PROJECT_ID_MAX_LENGTH) {
+      return `Project ID should have length from 1 to ${PROJECT_ID_MAX_LENGTH}`;
+    } else if (!value.match(/^\d+$/)) {
+      return 'Project ID should contain only digits';
+    } else {
+      return undefined;
+    }
+  };
 
   return (
     <>
@@ -44,7 +55,7 @@ export const IntegrationFormFields: FC<IntegrationFormFieldsInterface> = (props)
       <FieldElement
         name={PROJECT}
         label={LABELS.PROJECT}
-        validate={btsProjectId}
+        validate={projectIdValidator}
         disabled={disabled}
         isRequired
       >
