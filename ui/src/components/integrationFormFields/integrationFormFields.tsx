@@ -7,7 +7,19 @@ const INTEGRATION_NAME = 'integrationName';
 const URL = 'url';
 const PROJECT = 'project';
 const API_TOKEN = 'apiToken';
-const PROJECT_ID_MAX_LENGTH = 55;
+const MAX_LENGTH = 55;
+
+const projectIdValidator =
+  (requiredFieldValidator: (value: string) => string | undefined) => (value: string) => {
+    if (requiredFieldValidator(value)) {
+      return `Project ID should have length from 1 to ${MAX_LENGTH}`;
+    } else if (!value.match(/^\d+$/)) {
+      return 'Project ID should contain only digits';
+    } else {
+      return undefined;
+    }
+  };
+
 export const IntegrationFormFields: FC<IntegrationFormFieldsInterface> = (props) => {
   const { initialize, disabled, lineAlign, initialData, updateMetaData, ...extensionProps } = props;
   const {
@@ -23,17 +35,6 @@ export const IntegrationFormFields: FC<IntegrationFormFieldsInterface> = (props)
     });
   }, []);
 
-  const projectIdValidator = (value: string) => {
-    const trimmedValue = value ? value.trim() : value;
-    if (trimmedValue === '' || trimmedValue === undefined || value.length > PROJECT_ID_MAX_LENGTH) {
-      return `Project ID should have length from 1 to ${PROJECT_ID_MAX_LENGTH}`;
-    } else if (!value.match(/^\d+$/)) {
-      return 'Project ID should contain only digits';
-    } else {
-      return undefined;
-    }
-  };
-
   return (
     <>
       <FieldElement
@@ -44,7 +45,7 @@ export const IntegrationFormFields: FC<IntegrationFormFieldsInterface> = (props)
         isRequired
       >
         <FieldErrorHint provideHint={false}>
-          <FieldText maxLength={55} defaultWidth={false} />
+          <FieldText maxLength={MAX_LENGTH} defaultWidth={false} />
         </FieldErrorHint>
       </FieldElement>
       <FieldElement name={URL} label={LABELS.URL} validate={btsUrl} disabled={disabled} isRequired>
@@ -55,12 +56,12 @@ export const IntegrationFormFields: FC<IntegrationFormFieldsInterface> = (props)
       <FieldElement
         name={PROJECT}
         label={LABELS.PROJECT}
-        validate={projectIdValidator}
+        validate={projectIdValidator(requiredField)}
         disabled={disabled}
         isRequired
       >
         <FieldErrorHint provideHint={false}>
-          <FieldText maxLength={55} defaultWidth={false} />
+          <FieldText maxLength={MAX_LENGTH} defaultWidth={false} />
         </FieldErrorHint>
       </FieldElement>
       <FieldElement
