@@ -198,7 +198,9 @@ public class GitlabExtension implements ReportPortalExtensionPoint, DisposableBe
         String project = GitlabProperties.PROJECT.getParam(system.getParams())
                 .orElseThrow(() -> new ReportPortalException(ErrorType.UNABLE_INTERACT_WITH_INTEGRATION, "Project key is not specified."));
 
-        Map<String, List<String>> queryParams = ticketRQ.getFields().stream().collect(Collectors.toMap(PostFormField::getId, PostFormField::getValue));
+        Map<String, List<String>> queryParams = ticketRQ.getFields().stream()
+            .filter(form -> form.getValue() != null && !form.getValue().isEmpty())
+            .collect(Collectors.toMap(PostFormField::getId, PostFormField::getValue));
 
         try {
             return TicketMapper.toTicket(gitlabClientProvider.get(system.getParams()).postIssue(project, queryParams));
@@ -221,7 +223,8 @@ public class GitlabExtension implements ReportPortalExtensionPoint, DisposableBe
                 new PostFormField("epic_id", "Epic ID", "integer", false, null, null),
                 new PostFormField("labels", "Labels", "string", false, null, null),
                 new PostFormField("assignee_id", "Assignee ID", "string", false, null, null),
-                new PostFormField("due_date", "Due Date", "string", false, null, null)
+                new PostFormField("due_date", "Due Date", "string", false, null, null),
+                new PostFormField("weight", "Weight", "integer", false, null, null)
         );
     }
 
