@@ -31,7 +31,8 @@ public enum GitlabProperties {
 	URL("url"),
 	ISSUE_ID("issueId"),
 	BASE_URL("baseUrl"),
-	BTS_PROJECT("btsProject");
+	PROJECT_ID("projectId"),
+	TICKET_ID("ticketId");
 
 	private final String name;
 
