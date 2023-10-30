@@ -212,19 +212,21 @@ public class GitlabExtension implements ReportPortalExtensionPoint, DisposableBe
     @Override
     public List<PostFormField> getTicketFields(String issueType, Integration system) {
         return List.of(
-                new PostFormField("title", "Title", "string", true, null, null),
-                new PostFormField("description", "Description", "string", false, null, null),
-                new PostFormField("issue_type", "Issue type", "string", false, null, List.of(
-                        new AllowedValue("issue", "issue"),
-                        new AllowedValue("incident", "incident"))),
-                new PostFormField("confidential", "Confidential", "boolean", false, null, null),
-                new PostFormField("assignee_ids", "Assignee IDs", "array", false, null, null),
-                new PostFormField("milestone_id", "Milestone ID", "string", false, null, null),
-                new PostFormField("epic_id", "Epic ID", "integer", false, null, null),
-                new PostFormField("labels", "Labels", "string", false, null, null),
-                new PostFormField("assignee_id", "Assignee ID", "string", false, null, null),
-                new PostFormField("due_date", "Due Date", "string", false, null, null),
-                new PostFormField("weight", "Weight", "integer", false, null, null)
+            new PostFormField("title", "Title", "string", true, null, null),
+            new PostFormField("description", "Description", "string", false, null, null),
+            new PostFormField("issue_type", "Issue type", "string", false, null, List.of(
+                new AllowedValue("issue", "issue"),
+                new AllowedValue("incident", "incident"))),
+            new PostFormField("confidential", "Confidential", "string", false, null, List.of(
+                new AllowedValue("false", "No"),
+                new AllowedValue("true", "Yes"))),
+            new PostFormField("assignee_ids", "Assignee IDs", "array", false, null, null),
+            new PostFormField("milestone_id", "Milestone ID", "string", false, null, null),
+            new PostFormField("epic_id", "Epic ID", "integer", false, null, null),
+            new PostFormField("labels", "Labels", "string", false, null, null),
+            new PostFormField("assignee_id", "Assignee ID", "string", false, null, null),
+            new PostFormField("due_date", "Due Date", "string", false, null, null),
+            new PostFormField("weight", "Weight", "integer", false, null, null)
         );
     }
 
