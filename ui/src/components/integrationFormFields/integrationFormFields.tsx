@@ -1,5 +1,5 @@
 import { IntegrationFormFieldsInterface } from 'moduleFederation/common';
-import { FC, useEffect } from 'react';
+import { FC, useEffect, useMemo } from 'react';
 
 import { LABELS } from '../constants';
 
@@ -9,7 +9,7 @@ const PROJECT = 'project';
 const API_TOKEN = 'apiToken';
 const MAX_LENGTH = 55;
 
-const projectIdValidator =
+const getProjectIdValidator =
   (requiredFieldValidator: (value: string) => string | undefined) => (value: string) => {
     if (requiredFieldValidator(value)) {
       return `Project ID should have length from 1 to ${MAX_LENGTH}`;
@@ -35,6 +35,8 @@ export const IntegrationFormFields: FC<IntegrationFormFieldsInterface> = (props)
     });
   }, []);
 
+  const projectIdValidator = useMemo(() => getProjectIdValidator(requiredField), [requiredField]);
+
   return (
     <>
       <FieldElement
@@ -56,7 +58,7 @@ export const IntegrationFormFields: FC<IntegrationFormFieldsInterface> = (props)
       <FieldElement
         name={PROJECT}
         label={LABELS.PROJECT}
-        validate={projectIdValidator(requiredField)}
+        validate={projectIdValidator}
         disabled={disabled}
         isRequired
       >
