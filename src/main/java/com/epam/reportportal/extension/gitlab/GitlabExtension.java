@@ -217,7 +217,7 @@ public class GitlabExtension implements ReportPortalExtensionPoint, DisposableBe
             new PostFormField("issue_type", "Issue type", "string", false, null, List.of(
                 new AllowedValue("issue", "issue"),
                 new AllowedValue("incident", "incident"))),
-            new PostFormField("confidential", "Confidential", "boolean", false, null, List.of(
+            new PostFormField("confidential", "Confidential", "string", false, null, List.of(
                 new AllowedValue("false", "No"),
                 new AllowedValue("true", "Yes"))),
             new PostFormField("assignee_ids", "Assignee IDs", "array", false, null, null),
