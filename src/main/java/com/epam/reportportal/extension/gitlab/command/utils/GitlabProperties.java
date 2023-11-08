@@ -26,36 +26,37 @@ import java.util.Optional;
  */
 public enum GitlabProperties {
 
-	PROJECT("project"),
-	API_TOKEN("apiToken"),
-	URL("url"),
-	ISSUE_ID("issueId"),
-	BASE_URL("baseUrl"),
-	PROJECT_ID("projectId"),
-	TICKET_ID("ticketId");
+  PROJECT("project"),
+  API_TOKEN("apiToken"),
+  URL("url"),
+  ISSUE_ID("issueId"),
+  BASE_URL("baseUrl"),
+  PROJECT_ID("projectId"),
+  TICKET_ID("ticketId"),
+  SEARCH_TERM("term");
 
-	private final String name;
+  private final String name;
 
-	GitlabProperties(String name) {
-		this.name = name;
-	}
+  GitlabProperties(String name) {
+    this.name = name;
+  }
 
-	public Optional<String> getParam(Map<String, Object> params) {
-		return Optional.ofNullable(params.get(this.name)).map(String::valueOf);
-	}
+  public Optional<String> getParam(Map<String, Object> params) {
+    return Optional.ofNullable(params.get(this.name)).map(String::valueOf);
+  }
 
-	public Optional<String> getParam(IntegrationParams params) {
-		return Optional.ofNullable(params.getParams().get(this.name)).map(o -> (String) o);
-	}
+  public Optional<String> getParam(IntegrationParams params) {
+    return Optional.ofNullable(params.getParams().get(this.name)).map(o -> (String) o);
+  }
 
-	public void setParam(IntegrationParams params, String value) {
-		if (null == params.getParams()) {
-			params.setParams(new HashMap<>());
-		}
-		params.getParams().put(this.name, value);
-	}
+  public void setParam(IntegrationParams params, String value) {
+    if (null == params.getParams()) {
+      params.setParams(new HashMap<>());
+    }
+    params.getParams().put(this.name, value);
+  }
 
-	public String getName() {
-		return name;
-	}
+  public String getName() {
+    return name;
+  }
 }

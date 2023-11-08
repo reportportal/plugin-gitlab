@@ -1,6 +1,8 @@
 package com.epam.reportportal.extension.gitlab.rest.client;
 
 
+import com.epam.reportportal.extension.gitlab.dto.MilestoneDto;
+import com.epam.reportportal.extension.gitlab.dto.UserDto;
 import com.epam.reportportal.extension.gitlab.rest.client.model.IssueExtended;
 import com.epam.reportportal.extension.gitlab.utils.GitlabObjectMapperProvider;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -26,6 +28,7 @@ public class GitlabClient {
   private static final String ISSUES_PATH = BASE_PATH + "/issues";
 
   private static final String USERS_PATH = BASE_PATH + "/users?search=%s";
+  private static final String MILESTONES_PATH = BASE_PATH + "/milestones?search=%s";
   private static final String SINGLE_ISSUES_PATH = ISSUES_PATH + "/%s";
   private static final Map<String, List<String>> pageParams = Map.of(QUERY_PER_PAGE,
       List.of(DEFAULT_PAGE_SIZE.toString()), QUERY_PAGE, List.of("{page}"));
@@ -67,8 +70,16 @@ public class GitlabClient {
     return objectMapper.convertValue(singleEntity, IssueExtended.class);
   }
 
-  public List<Object> searchUser(String projectId, String term) {
+  public List<UserDto> searchUsers(String projectId, String term) {
     String pathUrl = String.format(USERS_PATH, baseUrl, projectId, term);
+    List<Object> response = new ArrayList<>();
+    getLists(response, pathUrl, new HashMap<>(pageParams));
+    return objectMapper.convertValue(response, new TypeReference<>() {
+    });
+  }
+
+  public List<MilestoneDto> searchMilestones(String projectId, String term) {
+    String pathUrl = String.format(MILESTONES_PATH, baseUrl, projectId, term);
     List<Object> response = new ArrayList<>();
     getLists(response, pathUrl, new HashMap<>(pageParams));
     return objectMapper.convertValue(response, new TypeReference<>() {
