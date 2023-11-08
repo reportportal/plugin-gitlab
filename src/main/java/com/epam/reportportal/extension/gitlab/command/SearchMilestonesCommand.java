@@ -40,7 +40,7 @@ public class SearchMilestonesCommand implements PluginCommand<List<MilestoneDto>
     String project = GitlabProperties.PROJECT.getParam(integrationParams)
         .orElseThrow(() -> new ReportPortalException(ErrorType.UNABLE_INTERACT_WITH_INTEGRATION,
             "Project ID is not specified."));
-    String term = GitlabProperties.SEARCH_TERM.getParam(integrationParams).orElseThrow(
+    String term = GitlabProperties.SEARCH_TERM.getParam(params).orElseThrow(
         () -> new ReportPortalException(ErrorType.UNABLE_INTERACT_WITH_INTEGRATION,
             "Search term is not specified"));
 
