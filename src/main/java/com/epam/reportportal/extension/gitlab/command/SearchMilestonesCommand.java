@@ -4,17 +4,14 @@ import static java.util.Optional.ofNullable;
 import static org.hibernate.bytecode.BytecodeLogger.LOGGER;
 
 import com.epam.reportportal.extension.PluginCommand;
-import com.epam.reportportal.extension.gitlab.command.utils.GitlabProperties;
 import com.epam.reportportal.extension.gitlab.dto.MilestoneDto;
-import com.epam.reportportal.extension.gitlab.rest.client.GitlabClient;
-import com.epam.reportportal.extension.gitlab.rest.client.GitlabClientProvider;
+import com.epam.reportportal.extension.gitlab.client.GitlabClientProvider;
 import com.epam.ta.reportportal.entity.integration.Integration;
 import com.epam.ta.reportportal.entity.integration.IntegrationParams;
 import com.epam.ta.reportportal.exception.ReportPortalException;
 import com.epam.ta.reportportal.ws.model.ErrorType;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 public class SearchMilestonesCommand implements PluginCommand<List<MilestoneDto>> {
 

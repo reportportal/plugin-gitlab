@@ -16,16 +16,16 @@
 package com.epam.reportportal.extension.gitlab.command;
 
 import com.epam.reportportal.extension.PluginCommand;
+import com.epam.reportportal.extension.gitlab.command.GitlabProperties;
 import com.epam.reportportal.extension.gitlab.client.GitlabClient;
 import com.epam.reportportal.extension.gitlab.client.GitlabClientProvider;
-import com.epam.reportportal.extension.gitlab.dto.IssueDto;
 import com.epam.ta.reportportal.entity.integration.Integration;
 import com.epam.ta.reportportal.entity.integration.IntegrationParams;
 import com.epam.ta.reportportal.exception.ReportPortalException;
 import com.epam.ta.reportportal.ws.model.ErrorType;
 
-import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static java.util.Optional.ofNullable;
 import static org.hibernate.bytecode.BytecodeLogger.LOGGER;
@@ -33,21 +33,21 @@ import static org.hibernate.bytecode.BytecodeLogger.LOGGER;
 /**
  * @author Zsolt Nagyaghy
  */
-public class GetIssuesCommand implements PluginCommand<List<IssueDto>> {
+public class TestConnectionCommand implements PluginCommand<Boolean> {
 
   private final GitlabClientProvider gitlabClientProvider;
 
-  public GetIssuesCommand(GitlabClientProvider gitlabClientProvider) {
+  public TestConnectionCommand(GitlabClientProvider gitlabClientProvider) {
     this.gitlabClientProvider = gitlabClientProvider;
   }
 
   @Override
   public String getName() {
-    return "getIssues";
+    return "testConnection";
   }
 
   @Override
-  public List<IssueDto> executeCommand(Integration integration, Map<String, Object> params) {
+  public Boolean executeCommand(Integration integration, Map<String, Object> params) {
     IntegrationParams integrationParams = ofNullable(integration.getParams()).orElseThrow(
         () -> new ReportPortalException(ErrorType.UNABLE_INTERACT_WITH_INTEGRATION,
             "Integration params are not specified."
@@ -55,14 +55,17 @@ public class GetIssuesCommand implements PluginCommand<List<IssueDto>> {
 
     String project = GitlabProperties.PROJECT.getParam(integrationParams)
         .orElseThrow(() -> new ReportPortalException(ErrorType.UNABLE_INTERACT_WITH_INTEGRATION,
-            "Project ID is not specified."));
+            "Project key is not specified."));
 
     try {
       GitlabClient restClient = gitlabClientProvider.get(integrationParams);
-      return restClient.getIssues(project);
+      return Objects.equals(restClient.getProject(project).getId(), Long.valueOf(project));
     } catch (Exception e) {
-      LOGGER.error("Issues not found: " + e.getMessage(), e);
-      throw new ReportPortalException(ErrorType.BAD_REQUEST_ERROR, e.getMessage());
+      LOGGER.error("Unable to connect to GitLab: " + e.getMessage(), e);
+      throw new ReportPortalException(ErrorType.UNABLE_INTERACT_WITH_INTEGRATION,
+          String.format("Unable to connect to GitLab. Message: %s", e.getMessage()),
+          e
+      );
     }
   }
 }

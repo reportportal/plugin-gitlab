@@ -16,7 +16,6 @@
 package com.epam.reportportal.extension.gitlab.command;
 
 import com.epam.reportportal.extension.CommonPluginCommand;
-import com.epam.reportportal.extension.gitlab.command.utils.GitlabProperties;
 import com.epam.ta.reportportal.exception.ReportPortalException;
 import com.epam.ta.reportportal.ws.model.ErrorType;
 import com.google.common.collect.Maps;

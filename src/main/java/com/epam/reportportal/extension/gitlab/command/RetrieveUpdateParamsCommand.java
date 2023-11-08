@@ -17,7 +17,6 @@
 package com.epam.reportportal.extension.gitlab.command;
 
 import com.epam.reportportal.extension.CommonPluginCommand;
-import com.epam.reportportal.extension.gitlab.command.utils.GitlabProperties;
 import com.google.common.collect.Maps;
 import org.jasypt.util.text.BasicTextEncryptor;
 

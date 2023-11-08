@@ -1,13 +1,13 @@
-package com.epam.reportportal.extension.gitlab.rest.client;
+package com.epam.reportportal.extension.gitlab.client;
 
 
+import com.epam.reportportal.extension.gitlab.dto.IssueDto;
 import com.epam.reportportal.extension.gitlab.dto.MilestoneDto;
+import com.epam.reportportal.extension.gitlab.dto.ProjectDto;
 import com.epam.reportportal.extension.gitlab.dto.UserDto;
-import com.epam.reportportal.extension.gitlab.rest.client.model.IssueExtended;
 import com.epam.reportportal.extension.gitlab.utils.GitlabObjectMapperProvider;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.gitlab4j.api.models.Project;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
@@ -42,20 +42,20 @@ public class GitlabClient {
     this.token = token;
   }
 
-  public Project getProject(String projectId) {
+  public ProjectDto getProject(String projectId) {
     String pathUrl = String.format(BASE_PATH, baseUrl, projectId);
     Object singleEntity = singleEntityRequests(pathUrl, Map.of(), HttpMethod.GET);
-    return objectMapper.convertValue(singleEntity, Project.class);
+    return objectMapper.convertValue(singleEntity, ProjectDto.class);
   }
 
-  public IssueExtended getIssue(String issueId, String projectId) {
+  public IssueDto getIssue(String issueId, String projectId) {
     String pathUrl = String.format(SINGLE_ISSUES_PATH, baseUrl, projectId, issueId);
     Object singleEntity = singleEntityRequests(pathUrl, Map.of(), HttpMethod.GET);
-    return objectMapper.convertValue(singleEntity, IssueExtended.class);
+    return objectMapper.convertValue(singleEntity, IssueDto.class);
   }
 
-  public List<IssueExtended> getIssues(String projectId) {
-    List<IssueExtended> response = new LinkedList<>();
+  public List<IssueDto> getIssues(String projectId) {
+    List<IssueDto> response = new LinkedList<>();
     HashMap<String, List<String>> queryParams = new HashMap<>(pageParams);
 
     String pathUrl = String.format(ISSUES_PATH, baseUrl, projectId);
@@ -64,10 +64,10 @@ public class GitlabClient {
     });
   }
 
-  public IssueExtended postIssue(String projectId, Map<String, List<String>> queryParams) {
+  public IssueDto postIssue(String projectId, Map<String, List<String>> queryParams) {
     String pathUrl = String.format(ISSUES_PATH, baseUrl, projectId);
     Object singleEntity = singleEntityRequests(pathUrl, queryParams, HttpMethod.POST);
-    return objectMapper.convertValue(singleEntity, IssueExtended.class);
+    return objectMapper.convertValue(singleEntity, IssueDto.class);
   }
 
   public List<UserDto> searchUsers(String projectId, String term) {

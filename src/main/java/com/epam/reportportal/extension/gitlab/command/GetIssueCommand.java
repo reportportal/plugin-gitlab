@@ -18,10 +18,8 @@ package com.epam.reportportal.extension.gitlab.command;
 import static org.hibernate.bytecode.BytecodeLogger.LOGGER;
 
 import com.epam.reportportal.extension.CommonPluginCommand;
-import com.epam.reportportal.extension.PluginCommand;
-import com.epam.reportportal.extension.gitlab.command.utils.GitlabProperties;
-import com.epam.reportportal.extension.gitlab.command.utils.TicketMapper;
-import com.epam.reportportal.extension.gitlab.rest.client.GitlabClientProvider;
+import com.epam.reportportal.extension.gitlab.utils.TicketMapper;
+import com.epam.reportportal.extension.gitlab.client.GitlabClientProvider;
 import com.epam.ta.reportportal.dao.IntegrationRepository;
 import com.epam.ta.reportportal.entity.integration.Integration;
 import com.epam.ta.reportportal.exception.ReportPortalException;

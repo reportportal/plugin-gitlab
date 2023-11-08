@@ -1,7 +1,7 @@
 
-package com.epam.reportportal.extension.gitlab.rest.client;
+package com.epam.reportportal.extension.gitlab.client;
 
-import com.epam.reportportal.extension.gitlab.command.utils.GitlabProperties;
+import com.epam.reportportal.extension.gitlab.command.GitlabProperties;
 import com.epam.ta.reportportal.entity.integration.IntegrationParams;
 import com.epam.ta.reportportal.exception.ReportPortalException;
 import com.epam.ta.reportportal.ws.model.ErrorType;
