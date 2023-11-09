@@ -137,10 +137,7 @@ public class GitlabClient {
   private String getUrl(String url, Map<String, List<String>> queryParams) {
     UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromHttpUrl(url);
     queryParams.keySet().forEach(key -> uriComponentsBuilder.queryParam(key, queryParams.get(key)));
-    return uriComponentsBuilder
-        .encode()
-        .toUriString();
-
+    return uriComponentsBuilder.build(false).toString();
   }
 
   private HttpHeaders getHttpHeaders() {
