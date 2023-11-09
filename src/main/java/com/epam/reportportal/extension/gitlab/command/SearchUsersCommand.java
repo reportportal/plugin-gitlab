@@ -4,8 +4,8 @@ import static java.util.Optional.ofNullable;
 import static org.hibernate.bytecode.BytecodeLogger.LOGGER;
 
 import com.epam.reportportal.extension.PluginCommand;
-import com.epam.reportportal.extension.gitlab.dto.UserDto;
 import com.epam.reportportal.extension.gitlab.client.GitlabClientProvider;
+import com.epam.reportportal.extension.gitlab.dto.UserDto;
 import com.epam.ta.reportportal.entity.integration.Integration;
 import com.epam.ta.reportportal.entity.integration.IntegrationParams;
 import com.epam.ta.reportportal.exception.ReportPortalException;

@@ -1,4 +1,3 @@
-
 package com.epam.reportportal.extension.gitlab.client;
 
 import com.epam.reportportal.extension.gitlab.command.GitlabProperties;
@@ -12,19 +11,21 @@ import org.jasypt.util.text.BasicTextEncryptor;
  */
 public class GitlabClientProvider {
 
-    protected BasicTextEncryptor textEncryptor;
+  protected BasicTextEncryptor textEncryptor;
 
-    public GitlabClientProvider(BasicTextEncryptor textEncryptor) {
-        this.textEncryptor = textEncryptor;
-    }
+  public GitlabClientProvider(BasicTextEncryptor textEncryptor) {
+    this.textEncryptor = textEncryptor;
+  }
 
-    public GitlabClient get(IntegrationParams integrationParams) {
-        String credentials = textEncryptor.decrypt(GitlabProperties.API_TOKEN.getParam(integrationParams)
-                .orElseThrow(() -> new ReportPortalException(ErrorType.UNABLE_INTERACT_WITH_INTEGRATION, "Access token is not specified.")));
-        String url = GitlabProperties.URL.getParam(integrationParams)
-                .orElseThrow(() -> new ReportPortalException(ErrorType.UNABLE_INTERACT_WITH_INTEGRATION,
-                        "Url to the GitLab is not specified."
-                ));
-        return new GitlabClient(url, credentials);
-    }
+  public GitlabClient get(IntegrationParams integrationParams) {
+    String credentials = textEncryptor.decrypt(
+        GitlabProperties.API_TOKEN.getParam(integrationParams)
+            .orElseThrow(() -> new ReportPortalException(ErrorType.UNABLE_INTERACT_WITH_INTEGRATION,
+                "Access token is not specified.")));
+    String url = GitlabProperties.URL.getParam(integrationParams)
+        .orElseThrow(() -> new ReportPortalException(ErrorType.UNABLE_INTERACT_WITH_INTEGRATION,
+            "Url to the GitLab is not specified."
+        ));
+    return new GitlabClient(url, credentials);
+  }
 }

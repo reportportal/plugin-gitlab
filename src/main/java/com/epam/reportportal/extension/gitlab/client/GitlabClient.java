@@ -8,12 +8,22 @@ import com.epam.reportportal.extension.gitlab.dto.UserDto;
 import com.epam.reportportal.extension.gitlab.utils.GitlabObjectMapperProvider;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
-
-import java.util.*;
 
 /**
  * @author Zsolt Nagyaghy
@@ -26,10 +36,9 @@ public class GitlabClient {
   private static final String QUERY_PER_PAGE = "per_page";
   private static final String BASE_PATH = "%s/api/v4/projects/%s";
   private static final String ISSUES_PATH = BASE_PATH + "/issues";
-
+  private static final String SINGLE_ISSUES_PATH = ISSUES_PATH + "/%s";
   private static final String USERS_PATH = BASE_PATH + "/users?search=%s";
   private static final String MILESTONES_PATH = BASE_PATH + "/milestones?search=%s";
-  private static final String SINGLE_ISSUES_PATH = ISSUES_PATH + "/%s";
   private static final Map<String, List<String>> pageParams = Map.of(QUERY_PER_PAGE,
       List.of(DEFAULT_PAGE_SIZE.toString()), QUERY_PAGE, List.of("{page}"));
 

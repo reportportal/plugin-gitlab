@@ -1,10 +1,11 @@
 package com.epam.reportportal.extension.gitlab.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class MilestoneDto {
 
   private Long id;
   private String title;
-  private String description;
 
   public MilestoneDto() {
   }
@@ -17,19 +18,13 @@ public class MilestoneDto {
     this.id = id;
   }
 
+  @JsonProperty("name")
   public String getTitle() {
     return title;
   }
 
+  @JsonProperty("title")
   public void setTitle(String title) {
     this.title = title;
-  }
-
-  public String getDescription() {
-    return description;
-  }
-
-  public void setDescription(String description) {
-    this.description = description;
   }
 }

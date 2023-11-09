@@ -16,7 +16,6 @@
 package com.epam.reportportal.extension.gitlab.command;
 
 import com.epam.ta.reportportal.entity.integration.IntegrationParams;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;

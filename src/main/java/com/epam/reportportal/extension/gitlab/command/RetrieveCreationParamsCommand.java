@@ -15,55 +15,59 @@
  */
 package com.epam.reportportal.extension.gitlab.command;
 
+import static com.epam.ta.reportportal.commons.validation.BusinessRule.expect;
+import static com.epam.ta.reportportal.ws.model.ErrorType.UNABLE_INTERACT_WITH_INTEGRATION;
+
 import com.epam.reportportal.extension.CommonPluginCommand;
 import com.epam.ta.reportportal.exception.ReportPortalException;
 import com.epam.ta.reportportal.ws.model.ErrorType;
 import com.google.common.collect.Maps;
+import java.util.Map;
 import org.apache.commons.collections.MapUtils;
 import org.jasypt.util.text.BasicTextEncryptor;
-
-import java.util.Map;
-
-import static com.epam.ta.reportportal.commons.validation.BusinessRule.expect;
-import static com.epam.ta.reportportal.ws.model.ErrorType.UNABLE_INTERACT_WITH_INTEGRATION;
 
 /**
  * @author <a href="mailto:pavel_bortnik@epam.com">Pavel Bortnik</a>
  */
 public class RetrieveCreationParamsCommand implements CommonPluginCommand<Map<String, Object>> {
 
-    private final BasicTextEncryptor textEncryptor;
+  private final BasicTextEncryptor textEncryptor;
 
-    public RetrieveCreationParamsCommand(BasicTextEncryptor textEncryptor) {
-        this.textEncryptor = textEncryptor;
-    }
+  public RetrieveCreationParamsCommand(BasicTextEncryptor textEncryptor) {
+    this.textEncryptor = textEncryptor;
+  }
 
-    @Override
-    public String getName() {
-        return "retrieveCreate";
-    }
+  @Override
+  public String getName() {
+    return "retrieveCreate";
+  }
 
-    @Override
-    //@param integration is always null because it can be not saved yet
-    public Map<String, Object> executeCommand(Map<String, Object> integrationParams) {
+  @Override
+  //@param integration is always null because it can be not saved yet
+  public Map<String, Object> executeCommand(Map<String, Object> integrationParams) {
 
-        expect(integrationParams, MapUtils::isNotEmpty).verify(ErrorType.BAD_REQUEST_ERROR, "No integration params provided");
+    expect(integrationParams, MapUtils::isNotEmpty).verify(ErrorType.BAD_REQUEST_ERROR,
+        "No integration params provided");
 
-        Map<String, Object> resultParams = Maps.newHashMapWithExpectedSize(GitlabProperties.values().length);
+    Map<String, Object> resultParams = Maps.newHashMapWithExpectedSize(
+        GitlabProperties.values().length);
 
-        resultParams.put(GitlabProperties.PROJECT.getName(),
-                GitlabProperties.PROJECT.getParam(integrationParams)
-                        .orElseThrow(() -> new ReportPortalException(UNABLE_INTERACT_WITH_INTEGRATION, "BTS project is not specified."))
-        );
-        resultParams.put(GitlabProperties.URL.getName(),
-                GitlabProperties.URL.getParam(integrationParams)
-                        .orElseThrow(() -> new ReportPortalException(UNABLE_INTERACT_WITH_INTEGRATION, "BTS url is not specified."))
-        );
-        resultParams.put(GitlabProperties.API_TOKEN.getName(),
-                textEncryptor.encrypt(GitlabProperties.API_TOKEN.getParam(integrationParams)
-                        .orElseThrow(() -> new ReportPortalException(UNABLE_INTERACT_WITH_INTEGRATION, "Access token value is not specified.")))
-        );
+    resultParams.put(GitlabProperties.PROJECT.getName(),
+        GitlabProperties.PROJECT.getParam(integrationParams)
+            .orElseThrow(() -> new ReportPortalException(UNABLE_INTERACT_WITH_INTEGRATION,
+                "BTS project is not specified."))
+    );
+    resultParams.put(GitlabProperties.URL.getName(),
+        GitlabProperties.URL.getParam(integrationParams)
+            .orElseThrow(() -> new ReportPortalException(UNABLE_INTERACT_WITH_INTEGRATION,
+                "BTS url is not specified."))
+    );
+    resultParams.put(GitlabProperties.API_TOKEN.getName(),
+        textEncryptor.encrypt(GitlabProperties.API_TOKEN.getParam(integrationParams)
+            .orElseThrow(() -> new ReportPortalException(UNABLE_INTERACT_WITH_INTEGRATION,
+                "Access token value is not specified.")))
+    );
 
-        return resultParams;
-    }
+    return resultParams;
+  }
 }
