@@ -21,6 +21,7 @@ import com.epam.reportportal.extension.gitlab.command.GetIssuesCommand;
 import com.epam.reportportal.extension.gitlab.command.GitlabProperties;
 import com.epam.reportportal.extension.gitlab.command.RetrieveCreationParamsCommand;
 import com.epam.reportportal.extension.gitlab.command.RetrieveUpdateParamsCommand;
+import com.epam.reportportal.extension.gitlab.command.SearchEpicsCommand;
 import com.epam.reportportal.extension.gitlab.command.SearchMilestonesCommand;
 import com.epam.reportportal.extension.gitlab.command.SearchUsersCommand;
 import com.epam.reportportal.extension.gitlab.command.TestConnectionCommand;
@@ -178,6 +179,7 @@ public class GitlabExtension implements ReportPortalExtensionPoint, DisposableBe
     commands.add(new GetIssuesCommand(gitlabClientProviderSupplier.get()));
     commands.add(new SearchUsersCommand(gitlabClientProviderSupplier.get()));
     commands.add(new SearchMilestonesCommand(gitlabClientProviderSupplier.get()));
+    commands.add(new SearchEpicsCommand(gitlabClientProviderSupplier.get()));
     return commands.stream().collect(Collectors.toMap(NamedPluginCommand::getName, it -> it));
   }
 
