@@ -15,16 +15,17 @@
  */
 package com.epam.reportportal.extension.gitlab.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * @author <a href="mailto:pavel_bortnik@epam.com">Pavel Bortnik</a>
  */
-public class ProjectDto {
+public class EpicDto {
 
   private Long id;
+  private String title;
 
-  private NamespaceDto namespace;
-
-  public ProjectDto() {
+  public EpicDto() {
   }
 
   public Long getId() {
@@ -35,11 +36,14 @@ public class ProjectDto {
     this.id = id;
   }
 
-  public NamespaceDto getNamespace() {
-    return namespace;
+  @JsonProperty("name")
+  public String getTitle() {
+    return title;
   }
 
-  public void setNamespace(NamespaceDto namespace) {
-    this.namespace = namespace;
+  @JsonProperty("title")
+  public void setTitle(String title) {
+    this.title = title;
   }
+
 }

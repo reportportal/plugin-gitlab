@@ -21,6 +21,7 @@ import com.epam.reportportal.extension.gitlab.command.GetIssuesCommand;
 import com.epam.reportportal.extension.gitlab.command.GitlabProperties;
 import com.epam.reportportal.extension.gitlab.command.RetrieveCreationParamsCommand;
 import com.epam.reportportal.extension.gitlab.command.RetrieveUpdateParamsCommand;
+import com.epam.reportportal.extension.gitlab.command.SearchEpicsCommand;
 import com.epam.reportportal.extension.gitlab.command.SearchMilestonesCommand;
 import com.epam.reportportal.extension.gitlab.command.SearchUsersCommand;
 import com.epam.reportportal.extension.gitlab.command.TestConnectionCommand;
@@ -178,6 +179,7 @@ public class GitlabExtension implements ReportPortalExtensionPoint, DisposableBe
     commands.add(new GetIssuesCommand(gitlabClientProviderSupplier.get()));
     commands.add(new SearchUsersCommand(gitlabClientProviderSupplier.get()));
     commands.add(new SearchMilestonesCommand(gitlabClientProviderSupplier.get()));
+    commands.add(new SearchEpicsCommand(gitlabClientProviderSupplier.get()));
     return commands.stream().collect(Collectors.toMap(NamedPluginCommand::getName, it -> it));
   }
 
@@ -234,28 +236,32 @@ public class GitlabExtension implements ReportPortalExtensionPoint, DisposableBe
   @Override
   public List<PostFormField> getTicketFields(String issueType, Integration system) {
     return List.of(
-        new PostFormField("title", "Title", "string", true, null, null, null, null),
-        new PostFormField("description", "Description", "string", false, null, null, null, null),
-        new PostFormField("issue_type", "Issue type", "string", false, null, null, null, List.of(
-            new AllowedValue("issue", "issue"),
-            new AllowedValue("incident", "incident"))),
-        new PostFormField("confidential", "Confidential", "string", false, null, null, null,
-            List.of(
+        PostFormField.builder().id("title").fieldName("title").fieldType("string").isRequired(true)
+            .build(),
+        PostFormField.builder().id("description").fieldName("Description").fieldType("string")
+            .build(),
+        PostFormField.builder().id("issue_type").fieldName("Issue type").fieldType("string")
+            .definedValues(List.of(
+                new AllowedValue("issue", "issue"),
+                new AllowedValue("incident", "incident")))
+            .build(),
+        PostFormField.builder().id("confidential").fieldName("Confidential").fieldType("string")
+            .definedValues(List.of(
                 new AllowedValue("false", "No"),
-                new AllowedValue("true", "Yes"))),
-        new PostFormField("assignee_ids", "Assignees", "multiAutocomplete", false, null, null,
-            "searchUsers",
-            null),
-        new PostFormField("milestone_id", "Milestone", "string", false, null, null,
-            "searchMilestones", null),
-        new PostFormField("epic_id", "Epic", "autocomplete", false, null, null, "searchEpics",
-            null),
-        new PostFormField("labels", "Labels", "autocomplete", false, null, null, "searchLabels",
-            null),
-        new PostFormField("assignee_id", "Assignee", "autocomplete", false, null, null,
-            "searchUsers", null),
-        new PostFormField("due_date", "Due Date", "string", false, null, null, null, null),
-        new PostFormField("weight", "Weight", "integer", false, null, null, null, null)
+                new AllowedValue("true", "Yes")))
+            .build(),
+        PostFormField.builder().id("assignee_id").fieldName("Assignee").fieldType("autocomplete")
+            .commandName("searchUsers").build(),
+        PostFormField.builder().id("due_date").fieldName("Due Date").fieldType("string").build(),
+        PostFormField.builder().id("labels").fieldName("Labels").fieldType("multiAutocomplete")
+            .commandName("searchLabels").build(),
+        PostFormField.builder().id("milestone_id").fieldName("Milestone").fieldType("autocomplete")
+            .commandName("searchMilestones").build(),
+        PostFormField.builder().id("epic_id").fieldName("Epic").fieldType("autocomplete")
+            .commandName("searchEpics").build(),
+        PostFormField.builder().id("weight").fieldName("Weight").fieldType("integer").build(),
+        PostFormField.builder().id("assignee_ids").fieldName("Assignees")
+            .fieldType("multiAutocomplete").commandName("searchUsers").build()
     );
   }
 

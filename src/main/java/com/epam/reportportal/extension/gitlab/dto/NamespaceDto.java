@@ -18,13 +18,12 @@ package com.epam.reportportal.extension.gitlab.dto;
 /**
  * @author <a href="mailto:pavel_bortnik@epam.com">Pavel Bortnik</a>
  */
-public class ProjectDto {
+public class NamespaceDto {
 
   private Long id;
+  private String name;
 
-  private NamespaceDto namespace;
-
-  public ProjectDto() {
+  public NamespaceDto() {
   }
 
   public Long getId() {
@@ -35,11 +34,11 @@ public class ProjectDto {
     this.id = id;
   }
 
-  public NamespaceDto getNamespace() {
-    return namespace;
+  public String getName() {
+    return name;
   }
 
-  public void setNamespace(NamespaceDto namespace) {
-    this.namespace = namespace;
+  public void setName(String name) {
+    this.name = name;
   }
 }
