@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 EPAM Systems
+ * Copyright 2023 EPAM Systems
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,8 @@ import static java.util.Optional.ofNullable;
 import static org.hibernate.bytecode.BytecodeLogger.LOGGER;
 
 import com.epam.reportportal.extension.PluginCommand;
-import com.epam.reportportal.extension.gitlab.client.GitlabClient;
 import com.epam.reportportal.extension.gitlab.client.GitlabClientProvider;
-import com.epam.reportportal.extension.gitlab.dto.IssueDto;
+import com.epam.reportportal.extension.gitlab.dto.MilestoneDto;
 import com.epam.ta.reportportal.entity.integration.Integration;
 import com.epam.ta.reportportal.entity.integration.IntegrationParams;
 import com.epam.ta.reportportal.exception.ReportPortalException;
@@ -30,38 +29,42 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @author Zsolt Nagyaghy
+ * @author <a href="mailto:pavel_bortnik@epam.com">Pavel Bortnik</a>
  */
-public class GetIssuesCommand implements PluginCommand<List<IssueDto>> {
+public class SearchMilestonesCommand implements PluginCommand<List<MilestoneDto>> {
 
   private final GitlabClientProvider gitlabClientProvider;
 
-  public GetIssuesCommand(GitlabClientProvider gitlabClientProvider) {
+  public SearchMilestonesCommand(GitlabClientProvider gitlabClientProvider) {
     this.gitlabClientProvider = gitlabClientProvider;
   }
 
   @Override
   public String getName() {
-    return "getIssues";
+    return "searchMilestones";
   }
 
   @Override
-  public List<IssueDto> executeCommand(Integration integration, Map<String, Object> params) {
+  public List<MilestoneDto> executeCommand(Integration integration, Map<String, Object> params) {
     IntegrationParams integrationParams = ofNullable(integration.getParams()).orElseThrow(
-        () -> new ReportPortalException(ErrorType.UNABLE_INTERACT_WITH_INTEGRATION,
+        () -> new ReportPortalException(
+            ErrorType.UNABLE_INTERACT_WITH_INTEGRATION,
             "Integration params are not specified."
         ));
 
     String project = GitlabProperties.PROJECT.getParam(integrationParams)
         .orElseThrow(() -> new ReportPortalException(ErrorType.UNABLE_INTERACT_WITH_INTEGRATION,
             "Project ID is not specified."));
+    String term = GitlabProperties.SEARCH_TERM.getParam(params).orElseThrow(
+        () -> new ReportPortalException(ErrorType.UNABLE_INTERACT_WITH_INTEGRATION,
+            "Search term is not specified"));
 
     try {
-      GitlabClient restClient = gitlabClientProvider.get(integrationParams);
-      return restClient.getIssues(project);
+      return gitlabClientProvider.get(integrationParams).searchMilestones(project, term);
     } catch (Exception e) {
       LOGGER.error("Issues not found: " + e.getMessage(), e);
       throw new ReportPortalException(ErrorType.BAD_REQUEST_ERROR, e.getMessage());
     }
   }
+
 }

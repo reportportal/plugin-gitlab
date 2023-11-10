@@ -44,19 +44,11 @@ dependencies {
         implementation 'com.epam.reportportal:plugin-api'
         annotationProcessor 'com.epam.reportportal:plugin-api'
     } else {
-        implementation 'com.github.reportportal:plugin-api:886ac55'
-        annotationProcessor 'com.github.reportportal:plugin-api:886ac55'
+        implementation 'com.github.reportportal:plugin-api:b9868b2'
+        annotationProcessor 'com.github.reportportal:plugin-api:b9868b2'
     }
 
     implementation group: 'javax.servlet', name: 'javax.servlet-api', version: '4.0.1'
-    compile (group: 'org.gitlab4j', name: 'gitlab4j-api', version: '5.3.0') {
-        exclude(group: 'jakarta.activation')
-        exclude(group: 'org.glassfish.jersey.inject')
-        exclude(group: 'org.glassfish.jersey.core')
-        exclude(group: 'org.glassfish.jersey.connectors')
-        exclude(group: 'jakarta.servlet')
-    }
-
     testImplementation 'org.junit.jupiter:junit-jupiter:5.6.0'
     testImplementation 'org.mockito:mockito-junit-jupiter:3.12.4'
 
