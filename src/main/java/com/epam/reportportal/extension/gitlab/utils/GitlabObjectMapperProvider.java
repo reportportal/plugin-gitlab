@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
  * @author Zsolt Nagyaghy
  */
 public class GitlabObjectMapperProvider {
-    private ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper;
 
     public GitlabObjectMapperProvider() {
         this.objectMapper = new ObjectMapper();
