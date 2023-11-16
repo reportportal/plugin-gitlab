@@ -39,7 +39,8 @@ public class GetIssueFieldsCommand extends ProjectMemberCommand<List<PostFormFie
             .build(),
         PostFormField.builder().id("description").fieldName("Description").fieldType("string")
             .build(),
-        PostFormField.builder().id("issue_type").fieldName("Issue type").fieldType("string")
+        PostFormField.builder().id("issue_type").fieldName("Issue type").fieldType("issuetype")
+            .isRequired(true)
             .definedValues(List.of(
                 new AllowedValue("issue", "issue"),
                 new AllowedValue("incident", "incident")))

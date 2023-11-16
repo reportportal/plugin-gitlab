@@ -44,8 +44,8 @@ dependencies {
         implementation 'com.epam.reportportal:plugin-api'
         annotationProcessor 'com.epam.reportportal:plugin-api'
     } else {
-        implementation 'com.github.reportportal:plugin-api:ab2c311'
-        annotationProcessor 'com.github.reportportal:plugin-api:ab2c311'
+        implementation 'com.github.reportportal:plugin-api:3876fab'
+        annotationProcessor 'com.github.reportportal:plugin-api:3876fab'
     }
 
     implementation group: 'javax.servlet', name: 'javax.servlet-api', version: '4.0.1'
