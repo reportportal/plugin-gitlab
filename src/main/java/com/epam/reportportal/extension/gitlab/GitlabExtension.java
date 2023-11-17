@@ -17,6 +17,7 @@ import com.epam.reportportal.extension.gitlab.command.PostTicketCommand;
 import com.epam.reportportal.extension.gitlab.command.RetrieveCreationParamsCommand;
 import com.epam.reportportal.extension.gitlab.command.RetrieveUpdateParamsCommand;
 import com.epam.reportportal.extension.gitlab.command.SearchEpicsCommand;
+import com.epam.reportportal.extension.gitlab.command.SearchLabelsCommand;
 import com.epam.reportportal.extension.gitlab.command.SearchMilestonesCommand;
 import com.epam.reportportal.extension.gitlab.command.SearchUsersCommand;
 import com.epam.reportportal.extension.gitlab.command.TestConnectionCommand;
@@ -168,6 +169,7 @@ public class GitlabExtension implements ReportPortalExtensionPoint, DisposableBe
     commands.add(new SearchUsersCommand(gitlabClientProviderSupplier.get()));
     commands.add(new SearchMilestonesCommand(gitlabClientProviderSupplier.get()));
     commands.add(new SearchEpicsCommand(gitlabClientProviderSupplier.get()));
+    commands.add(new SearchLabelsCommand(gitlabClientProviderSupplier.get()));
     commands.add(new GetIssueTypesCommand(projectRepository));
     commands.add(new GetIssueFieldsCommand(projectRepository));
     commands.add(new PostTicketCommand(projectRepository, gitlabClientProviderSupplier.get(),
