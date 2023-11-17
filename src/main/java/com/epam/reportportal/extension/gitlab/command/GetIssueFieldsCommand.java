@@ -35,7 +35,7 @@ public class GetIssueFieldsCommand extends ProjectMemberCommand<List<PostFormFie
   @Override
   protected List<PostFormField> invokeCommand(Integration integration, Map<String, Object> params) {
     return List.of(
-        PostFormField.builder().id("title").fieldName("title").fieldType("string").isRequired(true)
+        PostFormField.builder().id("title").fieldName("Title").fieldType("string").isRequired(true)
             .build(),
         PostFormField.builder().id("description").fieldName("Description").fieldType("string")
             .build(),
