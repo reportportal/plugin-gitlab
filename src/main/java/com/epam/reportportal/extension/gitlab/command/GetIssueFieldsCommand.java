@@ -28,6 +28,9 @@ import java.util.Map;
  */
 public class GetIssueFieldsCommand extends ProjectMemberCommand<List<PostFormField>> {
 
+  public static final String ISSUE_TYPE = "issue_type";
+  public static final String LABELS = "labels";
+
   public GetIssueFieldsCommand(ProjectRepository projectRepository) {
     super(projectRepository);
   }
@@ -39,7 +42,7 @@ public class GetIssueFieldsCommand extends ProjectMemberCommand<List<PostFormFie
             .build(),
         PostFormField.builder().id("description").fieldName("Description").fieldType("string")
             .build(),
-        PostFormField.builder().id("issue_type").fieldName("Issue type").fieldType("issuetype")
+        PostFormField.builder().id(ISSUE_TYPE).fieldName("Issue type").fieldType("issuetype")
             .isRequired(true)
             .definedValues(List.of(
                 new AllowedValue("issue", "issue"),
@@ -53,7 +56,8 @@ public class GetIssueFieldsCommand extends ProjectMemberCommand<List<PostFormFie
         PostFormField.builder().id("assignee_id").fieldName("Assignee").fieldType("autocomplete")
             .commandName("searchUsers").build(),
         PostFormField.builder().id("due_date").fieldName("Due Date").fieldType("string").build(),
-        PostFormField.builder().id("labels").fieldName("Labels").fieldType("multiAutocomplete")
+        PostFormField.builder().id(LABELS).fieldName("Labels")
+            .fieldType("creatableMultiAutocomplete")
             .commandName("searchLabels").build(),
         PostFormField.builder().id("milestone_id").fieldName("Milestone").fieldType("autocomplete")
             .commandName("searchMilestones").build(),

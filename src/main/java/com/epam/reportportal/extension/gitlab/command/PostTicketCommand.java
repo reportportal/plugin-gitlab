@@ -15,6 +15,8 @@
  */
 package com.epam.reportportal.extension.gitlab.command;
 
+import static com.epam.reportportal.extension.gitlab.command.GetIssueFieldsCommand.ISSUE_TYPE;
+import static com.epam.reportportal.extension.gitlab.command.GetIssueFieldsCommand.LABELS;
 import static com.epam.ta.reportportal.commons.Predicates.isNull;
 import static com.epam.ta.reportportal.commons.Predicates.not;
 import static com.epam.ta.reportportal.commons.validation.BusinessRule.expect;
@@ -30,6 +32,7 @@ import com.epam.ta.reportportal.dao.ProjectRepository;
 import com.epam.ta.reportportal.entity.integration.Integration;
 import com.epam.ta.reportportal.exception.ReportPortalException;
 import com.epam.ta.reportportal.ws.model.ErrorType;
+import com.epam.ta.reportportal.ws.model.externalsystem.NamedValue;
 import com.epam.ta.reportportal.ws.model.externalsystem.PostFormField;
 import com.epam.ta.reportportal.ws.model.externalsystem.PostTicketRQ;
 import com.epam.ta.reportportal.ws.model.externalsystem.Ticket;
@@ -76,13 +79,17 @@ public class PostTicketCommand extends ProjectMemberCommand<Ticket> {
   private Map<String, List<String>> handleTicketFields(List<PostFormField> fields) {
     Map<String, List<String>> params = new HashMap<>();
     for (PostFormField field : fields) {
-      if ("issue_type".equals(field.getId())) {
+      if (ISSUE_TYPE.equals(field.getId())) {
         params.put(field.getId(), field.getValue().stream().map(String::toLowerCase).collect(
             Collectors.toList()));
       } else if (!CollectionUtils.isEmpty(field.getValue())) {
         params.put(field.getId(), field.getValue());
       }
-      if (!CollectionUtils.isEmpty(field.getNamedValue())) {
+
+      if (LABELS.equals(field.getId())) {
+        params.put(field.getId(), field.getNamedValue().stream().map(NamedValue::getName).collect(
+            Collectors.toList()));
+      } else if (!CollectionUtils.isEmpty(field.getNamedValue())) {
         params.put(field.getId(),
             field.getNamedValue().stream().map(val -> String.valueOf(val.getId())).collect(
                 Collectors.toList()));
