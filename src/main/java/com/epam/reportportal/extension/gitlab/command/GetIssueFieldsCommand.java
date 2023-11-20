@@ -31,6 +31,8 @@ public class GetIssueFieldsCommand extends ProjectMemberCommand<List<PostFormFie
   public static final String ISSUE_TYPE = "issue_type";
   public static final String LABELS = "labels";
 
+  private static final String PAID_DESCRIPTION = "Available only for paid Enterprise version of GitLab";
+
   public GetIssueFieldsCommand(ProjectRepository projectRepository) {
     super(projectRepository);
   }
@@ -62,10 +64,11 @@ public class GetIssueFieldsCommand extends ProjectMemberCommand<List<PostFormFie
         PostFormField.builder().id("milestone_id").fieldName("Milestone").fieldType("autocomplete")
             .commandName("searchMilestones").build(),
         PostFormField.builder().id("epic_id").fieldName("Epic").fieldType("autocomplete")
-            .commandName("searchEpics").build(),
-        PostFormField.builder().id("weight").fieldName("Weight").fieldType("integer").build(),
+            .commandName("searchEpics").description(PAID_DESCRIPTION).build(),
+        PostFormField.builder().id("weight").fieldName("Weight").fieldType("integer")
+            .description(PAID_DESCRIPTION).build(),
         PostFormField.builder().id("assignee_ids").fieldName("Assignees")
-            .fieldType("multiAutocomplete").commandName("searchUsers").build()
+            .fieldType("multiAutocomplete").commandName("searchUsers").description(PAID_DESCRIPTION).build()
     );
   }
 
