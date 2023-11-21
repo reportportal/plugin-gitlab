@@ -85,11 +85,7 @@ public class PostTicketCommand extends ProjectMemberCommand<Ticket> {
       } else if (!CollectionUtils.isEmpty(field.getValue())) {
         params.put(field.getId(), field.getValue());
       }
-
-      if (LABELS.equals(field.getId())) {
-        params.put(field.getId(), field.getNamedValue().stream().map(NamedValue::getName).collect(
-            Collectors.toList()));
-      } else if (!CollectionUtils.isEmpty(field.getNamedValue())) {
+      if (!CollectionUtils.isEmpty(field.getNamedValue())) {
         params.put(field.getId(),
             field.getNamedValue().stream().map(val -> String.valueOf(val.getId())).collect(
                 Collectors.toList()));
