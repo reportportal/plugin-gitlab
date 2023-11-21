@@ -60,9 +60,7 @@ public class SearchLabelsCommand implements PluginCommand<List<LabelDto>> {
             "Search term is not specified"));
 
     try {
-      Long groupId = gitlabClientProvider.get(integrationParams).getProject(project).getNamespace()
-          .getId();
-      return gitlabClientProvider.get(integrationParams).searchLabels(groupId, term);
+      return gitlabClientProvider.get(integrationParams).searchLabels(project, term);
     } catch (Exception e) {
       LOGGER.error("Issues not found: " + e.getMessage(), e);
       throw new ReportPortalException(ErrorType.BAD_REQUEST_ERROR, e.getMessage());

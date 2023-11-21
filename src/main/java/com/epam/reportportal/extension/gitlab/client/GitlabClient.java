@@ -108,8 +108,8 @@ public class GitlabClient {
     });
   }
 
-  public List<LabelDto> searchLabels(Long groupId, String term) {
-    String pathUrl = String.format(LABELS_PATH, baseUrl, groupId, term);
+  public List<LabelDto> searchLabels(String project, String term) {
+    String pathUrl = String.format(LABELS_PATH, baseUrl, project, term);
     List<Object> response = new ArrayList<>();
     getLists(response, pathUrl, new HashMap<>(pageParams));
     return objectMapper.convertValue(response, new TypeReference<>() {
