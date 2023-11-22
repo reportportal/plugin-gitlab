@@ -20,6 +20,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -33,6 +35,8 @@ import org.springframework.web.util.UriComponentsBuilder;
  * @author Zsolt Nagyaghy
  */
 public class GitlabClient {
+
+  private static final Logger logger = LoggerFactory.getLogger(GitlabClient.class);
 
   private static final Integer DEFAULT_PAGE_SIZE = 100;
   private static final Integer FIRST_PAGE = 1;
@@ -124,7 +128,7 @@ public class GitlabClient {
     HttpEntity<String> entity = new HttpEntity<>(null, headers);
     RestTemplate restTemplate = new RestTemplate();
     String url = getUrl(path, queryParams);
-    LOGGER.warn("Post ticker url: " + url);
+    logger.warn("Post ticker url: " + url);
     return exchangeRequest(entity, restTemplate, url, method);
   }
 
