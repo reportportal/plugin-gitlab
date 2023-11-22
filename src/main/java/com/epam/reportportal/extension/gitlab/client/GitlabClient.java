@@ -1,6 +1,8 @@
 package com.epam.reportportal.extension.gitlab.client;
 
 
+import static org.hibernate.bytecode.BytecodeLogger.LOGGER;
+
 import com.epam.reportportal.extension.gitlab.dto.EpicDto;
 import com.epam.reportportal.extension.gitlab.dto.IssueDto;
 import com.epam.reportportal.extension.gitlab.dto.LabelDto;
@@ -122,6 +124,7 @@ public class GitlabClient {
     HttpEntity<String> entity = new HttpEntity<>(null, headers);
     RestTemplate restTemplate = new RestTemplate();
     String url = getUrl(path, queryParams);
+    LOGGER.warn("Post ticker url: " + url);
     return exchangeRequest(entity, restTemplate, url, method);
   }
 
