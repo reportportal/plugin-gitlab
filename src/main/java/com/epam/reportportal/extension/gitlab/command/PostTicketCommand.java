@@ -39,6 +39,7 @@ import com.epam.ta.reportportal.ws.model.externalsystem.Ticket;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import org.springframework.util.CollectionUtils;
 
@@ -80,19 +81,29 @@ public class PostTicketCommand extends ProjectMemberCommand<Ticket> {
     Map<String, List<String>> params = new HashMap<>();
     for (PostFormField field : fields) {
       if (ISSUE_TYPE.equals(field.getId())) {
-        params.put(field.getId(), field.getValue().stream().map(String::toLowerCase).collect(
-            Collectors.toList()));
+        params.put(field.getId(),
+            field.getValue().stream()
+                .filter(Objects::nonNull)
+                .map(String::toLowerCase)
+                .collect(Collectors.toList()));
       } else if (!CollectionUtils.isEmpty(field.getValue())) {
         params.put(field.getId(), field.getValue());
       }
 
       if (LABELS.equals(field.getId())) {
-        params.put(field.getId(), field.getNamedValue().stream().map(NamedValue::getName).collect(
-            Collectors.toList()));
+        params.put(field.getId(),
+            field.getNamedValue().stream()
+                .filter(Objects::nonNull)
+                .filter(val -> Objects.nonNull(val.getId()))
+                .map(NamedValue::getName)
+                .collect(Collectors.toList()));
       } else if (!CollectionUtils.isEmpty(field.getNamedValue())) {
         params.put(field.getId(),
-            field.getNamedValue().stream().map(val -> String.valueOf(val.getId())).collect(
-                Collectors.toList()));
+            field.getNamedValue().stream()
+                .filter(Objects::nonNull)
+                .filter(val -> Objects.nonNull(val.getId()))
+                .map(val -> String.valueOf(val.getId()))
+                .collect(Collectors.toList()));
       }
     }
     return params;
