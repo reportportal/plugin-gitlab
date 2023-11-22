@@ -17,6 +17,7 @@ package com.epam.reportportal.extension.gitlab.command;
 
 import static com.epam.reportportal.extension.gitlab.command.GetIssueFieldsCommand.ISSUE_TYPE;
 import static com.epam.reportportal.extension.gitlab.command.GetIssueFieldsCommand.LABELS;
+import static com.epam.reportportal.extension.gitlab.command.PredefinedFieldTypes.NAMED_VALUE_FIELDS;
 import static com.epam.ta.reportportal.commons.Predicates.isNull;
 import static com.epam.ta.reportportal.commons.Predicates.not;
 import static com.epam.ta.reportportal.commons.validation.BusinessRule.expect;
@@ -41,6 +42,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.util.CollectionUtils;
 
@@ -81,32 +83,27 @@ public class PostTicketCommand extends ProjectMemberCommand<Ticket> {
   private Map<String, List<String>> handleTicketFields(List<PostFormField> fields) {
     Map<String, List<String>> params = new HashMap<>();
     for (PostFormField field : fields) {
-      if (ISSUE_TYPE.equals(field.getId())) {
-        params.put(field.getId(),
-            field.getValue().stream()
-                .filter(Objects::nonNull)
-                .map(String::toLowerCase)
-                .collect(Collectors.toList()));
+      if (NAMED_VALUE_FIELDS.contains(field.getFieldType())) {
+        if (!CollectionUtils.isEmpty(field.getNamedValue())) {
+          params.put(field.getId(), Collections.singletonList(field.getNamedValue().stream()
+              .filter(Objects::nonNull)
+              .map(val -> {
+                if (val.getId() != null) {
+                  return String.valueOf(val.getId());
+                }
+                return val.getName();
+              })
+              .collect(Collectors.joining(","))));
+        }
       } else if (!CollectionUtils.isEmpty(field.getValue())) {
         params.put(field.getId(), field.getValue());
       }
-
-      if (LABELS.equals(field.getId())) {
-        params.put(field.getId(),
-            Collections.singletonList(field.getNamedValue().stream()
-                .filter(Objects::nonNull)
-                .filter(val -> Objects.nonNull(val.getId()))
-                .map(NamedValue::getName)
-                .collect(Collectors.joining(","))));
-      } else if (!CollectionUtils.isEmpty(field.getNamedValue())) {
-        params.put(field.getId(),
-            Collections.singletonList(field.getNamedValue().stream()
-                .filter(Objects::nonNull)
-                .filter(val -> Objects.nonNull(val.getId()))
-                .map(val -> String.valueOf(val.getId()))
-                .collect(Collectors.joining(","))));
-      }
     }
+    Optional.ofNullable(params.get(ISSUE_TYPE))
+        .ifPresent(value -> params.put(ISSUE_TYPE, value.stream()
+            .filter(Objects::nonNull)
+            .map(String::toLowerCase)
+            .collect(Collectors.toList())));
     return params;
   }
 

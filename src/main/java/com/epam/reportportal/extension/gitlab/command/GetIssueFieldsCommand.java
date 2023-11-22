@@ -15,6 +15,9 @@
  */
 package com.epam.reportportal.extension.gitlab.command;
 
+import static com.epam.reportportal.extension.gitlab.command.PredefinedFieldTypes.CREATABLE_MULTI_AUTOCOMPLETE;
+import static com.epam.reportportal.extension.gitlab.command.PredefinedFieldTypes.MULTI_AUTOCOMPLETE;
+
 import com.epam.reportportal.extension.ProjectMemberCommand;
 import com.epam.ta.reportportal.dao.ProjectRepository;
 import com.epam.ta.reportportal.entity.integration.Integration;
@@ -59,7 +62,7 @@ public class GetIssueFieldsCommand extends ProjectMemberCommand<List<PostFormFie
             .commandName("searchUsers").build(),
         PostFormField.builder().id("due_date").fieldName("Due Date").fieldType("string").build(),
         PostFormField.builder().id(LABELS).fieldName("Labels")
-            .fieldType("creatableMultiAutocomplete")
+            .fieldType(CREATABLE_MULTI_AUTOCOMPLETE)
             .commandName("searchLabels").build(),
         PostFormField.builder().id("milestone_id").fieldName("Milestone").fieldType("autocomplete")
             .commandName("searchMilestones").build(),
@@ -68,7 +71,8 @@ public class GetIssueFieldsCommand extends ProjectMemberCommand<List<PostFormFie
         PostFormField.builder().id("weight").fieldName("Weight").fieldType("integer")
             .description(PAID_DESCRIPTION).build(),
         PostFormField.builder().id("assignee_ids").fieldName("Assignees")
-            .fieldType("multiAutocomplete").commandName("searchUsers").description(PAID_DESCRIPTION).build()
+            .fieldType(MULTI_AUTOCOMPLETE).commandName("searchUsers").description(PAID_DESCRIPTION)
+            .build()
     );
   }
 
