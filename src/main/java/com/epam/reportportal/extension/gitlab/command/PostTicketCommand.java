@@ -36,6 +36,7 @@ import com.epam.ta.reportportal.ws.model.externalsystem.NamedValue;
 import com.epam.ta.reportportal.ws.model.externalsystem.PostFormField;
 import com.epam.ta.reportportal.ws.model.externalsystem.PostTicketRQ;
 import com.epam.ta.reportportal.ws.model.externalsystem.Ticket;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -92,18 +93,18 @@ public class PostTicketCommand extends ProjectMemberCommand<Ticket> {
 
       if (LABELS.equals(field.getId())) {
         params.put(field.getId(),
-            field.getNamedValue().stream()
+            Collections.singletonList(field.getNamedValue().stream()
                 .filter(Objects::nonNull)
                 .filter(val -> Objects.nonNull(val.getId()))
                 .map(NamedValue::getName)
-                .collect(Collectors.toList()));
+                .collect(Collectors.joining(","))));
       } else if (!CollectionUtils.isEmpty(field.getNamedValue())) {
         params.put(field.getId(),
-            field.getNamedValue().stream()
+            Collections.singletonList(field.getNamedValue().stream()
                 .filter(Objects::nonNull)
                 .filter(val -> Objects.nonNull(val.getId()))
                 .map(val -> String.valueOf(val.getId()))
-                .collect(Collectors.toList()));
+                .collect(Collectors.joining(","))));
       }
     }
     return params;
