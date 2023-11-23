@@ -33,7 +33,6 @@ import com.epam.ta.reportportal.dao.ProjectRepository;
 import com.epam.ta.reportportal.entity.integration.Integration;
 import com.epam.ta.reportportal.exception.ReportPortalException;
 import com.epam.ta.reportportal.ws.model.ErrorType;
-import com.epam.ta.reportportal.ws.model.externalsystem.NamedValue;
 import com.epam.ta.reportportal.ws.model.externalsystem.PostFormField;
 import com.epam.ta.reportportal.ws.model.externalsystem.PostTicketRQ;
 import com.epam.ta.reportportal.ws.model.externalsystem.Ticket;
@@ -88,10 +87,10 @@ public class PostTicketCommand extends ProjectMemberCommand<Ticket> {
           params.put(field.getId(), Collections.singletonList(field.getNamedValue().stream()
               .filter(Objects::nonNull)
               .map(val -> {
-                if (val.getId() != null) {
-                  return String.valueOf(val.getId());
+                if (LABELS.equals(field.getId())) {
+                  return val.getName();
                 }
-                return val.getName();
+                return String.valueOf(val.getId());
               })
               .collect(Collectors.joining(","))));
         }
