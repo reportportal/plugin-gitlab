@@ -15,6 +15,7 @@
  */
 package com.epam.reportportal.extension.gitlab.command;
 
+import static com.epam.reportportal.extension.gitlab.command.PredefinedFieldTypes.AUTOCOMPLETE;
 import static com.epam.reportportal.extension.gitlab.command.PredefinedFieldTypes.CREATABLE_MULTI_AUTOCOMPLETE;
 import static com.epam.reportportal.extension.gitlab.command.PredefinedFieldTypes.MULTI_AUTOCOMPLETE;
 
@@ -58,7 +59,7 @@ public class GetIssueFieldsCommand extends ProjectMemberCommand<List<PostFormFie
                 new AllowedValue("false", "No"),
                 new AllowedValue("true", "Yes")))
             .build(),
-        PostFormField.builder().id("assignee_id").fieldName("Assignee").fieldType("autocomplete")
+        PostFormField.builder().id("assignee_id").fieldName("Assignee").fieldType(AUTOCOMPLETE)
             .commandName("searchUsers").build(),
         PostFormField.builder().id("due_date").fieldName("Due Date").fieldType("string").build(),
         PostFormField.builder().id(LABELS).fieldName("Labels")
