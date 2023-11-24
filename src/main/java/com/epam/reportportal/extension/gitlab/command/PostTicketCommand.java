@@ -36,9 +36,7 @@ import com.epam.ta.reportportal.ws.model.ErrorType;
 import com.epam.ta.reportportal.ws.model.externalsystem.PostFormField;
 import com.epam.ta.reportportal.ws.model.externalsystem.PostTicketRQ;
 import com.epam.ta.reportportal.ws.model.externalsystem.Ticket;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -73,7 +71,7 @@ public class PostTicketCommand extends ProjectMemberCommand<Ticket> {
     String project = GitlabProperties.PROJECT.getParam(integration.getParams())
         .orElseThrow(() -> new ReportPortalException(ErrorType.UNABLE_INTERACT_WITH_INTEGRATION,
             "Project key is not specified."));
-    Map<String, List<String>> queryParams = handleTicketFields(ticketRQ);
+    Map<String, String> queryParams = handleTicketFields(ticketRQ);
     try {
       return TicketMapper.toTicket(
           gitlabClientProvider.get(integration.getParams()).postIssue(project, queryParams));
@@ -82,16 +80,16 @@ public class PostTicketCommand extends ProjectMemberCommand<Ticket> {
     }
   }
 
-  private Map<String, List<String>> handleTicketFields(PostTicketRQ ticketRQ) {
-    Map<String, List<String>> params = new HashMap<>();
+  private Map<String, String> handleTicketFields(PostTicketRQ ticketRQ) {
+    Map<String, String> params = new HashMap<>();
     for (PostFormField field : ticketRQ.getFields()) {
       if ("description".equals(field.getId())) {
-        params.put(field.getId(), List.of(field.getValue().get(0).concat("\n")
-            .concat(descriptionBuilderService.getDescription(ticketRQ))));
+        params.put(field.getId(), field.getValue().get(0).concat("\n")
+            .concat(descriptionBuilderService.getDescription(ticketRQ)));
       }
       if (NAMED_VALUE_FIELDS.contains(field.getFieldType())) {
         if (!CollectionUtils.isEmpty(field.getNamedValue())) {
-          params.put(field.getId(), Collections.singletonList(field.getNamedValue().stream()
+          params.put(field.getId(), field.getNamedValue().stream()
               .filter(Objects::nonNull)
               .map(val -> {
                 if (LABELS.equals(field.getId())) {
@@ -99,17 +97,14 @@ public class PostTicketCommand extends ProjectMemberCommand<Ticket> {
                 }
                 return String.valueOf(val.getId());
               })
-              .collect(Collectors.joining(","))));
+              .collect(Collectors.joining(",")));
         }
       } else if (!CollectionUtils.isEmpty(field.getValue())) {
-        params.put(field.getId(), field.getValue());
+        params.put(field.getId(), String.join(",", field.getValue()));
       }
     }
     Optional.ofNullable(params.get(ISSUE_TYPE))
-        .ifPresent(value -> params.put(ISSUE_TYPE, value.stream()
-            .filter(Objects::nonNull)
-            .map(String::toLowerCase)
-            .collect(Collectors.toList())));
+        .ifPresent(value -> params.put(ISSUE_TYPE, value.toLowerCase()));
     return params;
   }
 

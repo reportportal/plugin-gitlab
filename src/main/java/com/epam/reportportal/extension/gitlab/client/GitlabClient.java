@@ -83,7 +83,7 @@ public class GitlabClient {
     });
   }
 
-  public IssueDto postIssue(String projectId, Map<String, List<String>> queryParams) {
+  public IssueDto postIssue(String projectId, Map<String, String> queryParams) {
     String pathUrl = String.format(ISSUES_PATH, baseUrl, projectId);
     HttpHeaders httpHeaders = getHttpHeaders();
     httpHeaders.setContentType(MediaType.APPLICATION_JSON);
