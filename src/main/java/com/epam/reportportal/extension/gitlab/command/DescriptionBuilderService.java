@@ -86,8 +86,12 @@ public class DescriptionBuilderService {
         .orElseThrow(() -> new ReportPortalException(ErrorType.TEST_ITEM_NOT_FOUND,
             ticketRQ.getTestItemId()));
 
+    System.err.println(item);
+
     ticketRQ.getBackLinks().keySet().forEach(
         backLinkId -> updateDescriptionBuilder(descriptionBuilder, ticketRQ, backLinkId, item));
+
+    System.err.println(descriptionBuilder);
 
     return descriptionBuilder.toString();
   }
