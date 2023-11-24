@@ -90,7 +90,7 @@ public class GitlabClient {
     JSONObject personJsonObject = new JSONObject();
     personJsonObject.putAll(queryParams);
     HttpEntity<String> request = new HttpEntity<>(personJsonObject.toString(), httpHeaders);
-    System.err.println("$$$$" + request.getBody() + "$$$$$");
+    System.err.println("$$$$" + personJsonObject + "$$$$$");
     RestTemplate restTemplate = new RestTemplate();
     return restTemplate.postForObject(pathUrl, request, IssueDto.class);
   }
