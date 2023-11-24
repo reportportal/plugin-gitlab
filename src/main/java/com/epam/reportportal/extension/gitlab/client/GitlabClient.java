@@ -1,8 +1,6 @@
 package com.epam.reportportal.extension.gitlab.client;
 
 
-import static org.hibernate.bytecode.BytecodeLogger.LOGGER;
-
 import com.epam.reportportal.extension.gitlab.dto.EpicDto;
 import com.epam.reportportal.extension.gitlab.dto.IssueDto;
 import com.epam.reportportal.extension.gitlab.dto.LabelDto;
@@ -20,6 +18,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import org.jooq.tools.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
@@ -86,8 +85,14 @@ public class GitlabClient {
 
   public IssueDto postIssue(String projectId, Map<String, List<String>> queryParams) {
     String pathUrl = String.format(ISSUES_PATH, baseUrl, projectId);
-    Object singleEntity = singleEntityRequests(pathUrl, queryParams, HttpMethod.POST);
-    return objectMapper.convertValue(singleEntity, IssueDto.class);
+    HttpHeaders httpHeaders = new HttpHeaders();
+    httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+    JSONObject personJsonObject = new JSONObject();
+    personJsonObject.putAll(queryParams);
+    HttpEntity<String> request = new HttpEntity<>(personJsonObject.toString(), httpHeaders);
+    System.err.println("$$$$" + request.getBody() + "$$$$$");
+    RestTemplate restTemplate = new RestTemplate();
+    return restTemplate.postForObject(pathUrl, request, IssueDto.class);
   }
 
   public List<UserDto> searchUsers(String projectId, String term) {

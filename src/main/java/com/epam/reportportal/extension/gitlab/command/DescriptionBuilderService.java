@@ -50,10 +50,10 @@ import org.slf4j.LoggerFactory;
 public class DescriptionBuilderService {
 
   public static final String JIRA_MARKUP_LINE_BREAK = "\\\\ ";
-  public static final String BACK_LINK_HEADER = "h3.*Back link to Report Portal:*";
-  public static final String BACK_LINK_PATTERN = "[Link to defect|%s]%n";
-  public static final String COMMENTS_HEADER = "h3.*Test Item comments:*";
-  public static final String CODE = "{code}";
+  public static final String BACK_LINK_HEADER = "**Back link to Report Portal:**";
+  public static final String BACK_LINK_PATTERN = "[Link to defect](%s)";
+  public static final String COMMENTS_HEADER = "**Test Item comments:**";
+  public static final String CODE = "`";
   private static final Logger LOGGER = LoggerFactory.getLogger(DescriptionBuilderService.class);
   private static final String IMAGE_CONTENT = "image";
   private static final String IMAGE_HEIGHT_TEMPLATE = "|height=366!";
