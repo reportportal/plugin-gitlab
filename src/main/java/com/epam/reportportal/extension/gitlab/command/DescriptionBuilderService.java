@@ -85,14 +85,8 @@ public class DescriptionBuilderService {
     TestItem item = itemRepository.findById(ticketRQ.getTestItemId())
         .orElseThrow(() -> new ReportPortalException(ErrorType.TEST_ITEM_NOT_FOUND,
             ticketRQ.getTestItemId()));
-
-    System.err.println("ITEM:::::" + item);
-
     ticketRQ.getBackLinks().keySet().forEach(
         backLinkId -> updateDescriptionBuilder(descriptionBuilder, ticketRQ, backLinkId, item));
-
-    System.err.println("DESCRIPTION INSIDE::::::::" + descriptionBuilder);
-
     return descriptionBuilder.toString();
   }
 
