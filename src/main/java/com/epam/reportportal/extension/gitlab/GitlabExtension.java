@@ -9,6 +9,7 @@ import com.epam.reportportal.extension.common.IntegrationTypeProperties;
 import com.epam.reportportal.extension.event.PluginEvent;
 import com.epam.reportportal.extension.event.StartLaunchEvent;
 import com.epam.reportportal.extension.gitlab.client.GitlabClientProvider;
+import com.epam.reportportal.extension.gitlab.command.DescriptionBuilderService;
 import com.epam.reportportal.extension.gitlab.command.GetIssueCommand;
 import com.epam.reportportal.extension.gitlab.command.GetIssueFieldsCommand;
 import com.epam.reportportal.extension.gitlab.command.GetIssueTypesCommand;
@@ -33,6 +34,7 @@ import com.epam.ta.reportportal.dao.IntegrationTypeRepository;
 import com.epam.ta.reportportal.dao.LaunchRepository;
 import com.epam.ta.reportportal.dao.LogRepository;
 import com.epam.ta.reportportal.dao.ProjectRepository;
+import com.epam.ta.reportportal.dao.TestItemRepository;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -64,8 +66,7 @@ public class GitlabExtension implements ReportPortalExtensionPoint, DisposableBe
   private final Supplier<ApplicationListener<PluginEvent>> pluginLoadedListenerSupplier;
   private final Supplier<ApplicationListener<StartLaunchEvent>> startLaunchEventListenerSupplier;
   private final Supplier<GitlabClientProvider> gitlabClientProviderSupplier;
-  private final Supplier<Map<String, PluginCommand<?>>> pluginCommandMapping = new MemoizingSupplier<>(
-      this::getCommands);
+  private final Supplier<DescriptionBuilderService> descriptionBuilderServiceSupplier;
   @Autowired
   private ApplicationContext applicationContext;
   @Autowired
@@ -74,10 +75,14 @@ public class GitlabExtension implements ReportPortalExtensionPoint, DisposableBe
   private IntegrationRepository integrationRepository;
   @Autowired
   private ProjectRepository projectRepository;
+  private final Supplier<Map<String, PluginCommand<?>>> pluginCommandMapping = new MemoizingSupplier<>(
+      this::getCommands);
   @Autowired
   private LaunchRepository launchRepository;
   @Autowired
   private LogRepository logRepository;
+  @Autowired
+  private TestItemRepository testItemRepository;
   @Autowired
   private BasicTextEncryptor textEncryptor;
   private final Supplier<Map<String, CommonPluginCommand<?>>> commonPluginCommandMapping = new MemoizingSupplier<>(
@@ -100,6 +105,8 @@ public class GitlabExtension implements ReportPortalExtensionPoint, DisposableBe
         () -> new GitlabClientProvider(textEncryptor));
     requestEntityConverter = new RequestEntityConverter(
         new GitlabObjectMapperProvider().getObjectMapper());
+    descriptionBuilderServiceSupplier = new MemoizingSupplier<>(
+        () -> new DescriptionBuilderService(logRepository, testItemRepository));
   }
 
   @Override
@@ -173,7 +180,7 @@ public class GitlabExtension implements ReportPortalExtensionPoint, DisposableBe
     commands.add(new GetIssueTypesCommand(projectRepository));
     commands.add(new GetIssueFieldsCommand(projectRepository));
     commands.add(new PostTicketCommand(projectRepository, gitlabClientProviderSupplier.get(),
-        requestEntityConverter));
+        requestEntityConverter, descriptionBuilderServiceSupplier.get()));
     return commands.stream().collect(Collectors.toMap(NamedPluginCommand::getName, it -> it));
   }
 }
