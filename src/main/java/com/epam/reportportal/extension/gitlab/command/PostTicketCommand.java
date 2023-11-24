@@ -85,7 +85,7 @@ public class PostTicketCommand extends ProjectMemberCommand<Ticket> {
   private Map<String, List<String>> handleTicketFields(PostTicketRQ ticketRQ) {
     Map<String, List<String>> params = new HashMap<>();
     for (PostFormField field : ticketRQ.getFields()) {
-      if ("description".equals(field.getFieldType())) {
+      if ("description".equals(field.getId())) {
         params.put(field.getId(), List.of(field.getValue().get(0).concat("\n")
             .concat(descriptionBuilderService.getDescription(ticketRQ))));
       }
