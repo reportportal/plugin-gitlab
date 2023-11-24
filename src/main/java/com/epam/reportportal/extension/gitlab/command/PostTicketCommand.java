@@ -86,7 +86,7 @@ public class PostTicketCommand extends ProjectMemberCommand<Ticket> {
       if ("description".equals(field.getId())) {
         String extendedDescription = descriptionBuilderService.getDescription(ticketRQ);
         System.err.println("DESCRIPTION BUILDER:::: " + extendedDescription);
-        String description = field.getValue().get(0) + "\n" + extendedDescription;
+        String description = field.getValue().get(0) + extendedDescription;
         params.put(field.getId(), description);
       }
       if (NAMED_VALUE_FIELDS.contains(field.getFieldType())) {
