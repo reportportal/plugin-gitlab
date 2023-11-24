@@ -53,12 +53,15 @@ public class PostTicketCommand extends ProjectMemberCommand<Ticket> {
 
   private final GitlabClientProvider gitlabClientProvider;
   private final RequestEntityConverter requestEntityConverter;
+  private final DescriptionBuilderService descriptionBuilderService;
 
   public PostTicketCommand(ProjectRepository projectRepository,
-      GitlabClientProvider gitlabClientProvider, RequestEntityConverter requestEntityConverter) {
+      GitlabClientProvider gitlabClientProvider, RequestEntityConverter requestEntityConverter,
+      DescriptionBuilderService descriptionBuilderService) {
     super(projectRepository);
     this.gitlabClientProvider = gitlabClientProvider;
     this.requestEntityConverter = requestEntityConverter;
+    this.descriptionBuilderService = descriptionBuilderService;
   }
 
   @Override
@@ -71,7 +74,7 @@ public class PostTicketCommand extends ProjectMemberCommand<Ticket> {
     String project = GitlabProperties.PROJECT.getParam(integration.getParams())
         .orElseThrow(() -> new ReportPortalException(ErrorType.UNABLE_INTERACT_WITH_INTEGRATION,
             "Project key is not specified."));
-    Map<String, List<String>> queryParams = handleTicketFields(ticketRQ.getFields());
+    Map<String, List<String>> queryParams = handleTicketFields(ticketRQ);
     try {
       return TicketMapper.toTicket(
           gitlabClientProvider.get(integration.getParams()).postIssue(project, queryParams));
@@ -80,9 +83,13 @@ public class PostTicketCommand extends ProjectMemberCommand<Ticket> {
     }
   }
 
-  private Map<String, List<String>> handleTicketFields(List<PostFormField> fields) {
+  private Map<String, List<String>> handleTicketFields(PostTicketRQ ticketRQ) {
     Map<String, List<String>> params = new HashMap<>();
-    for (PostFormField field : fields) {
+    for (PostFormField field : ticketRQ.getFields()) {
+      if ("description".equals(field.getFieldType())) {
+        params.put(field.getId(), List.of(field.getValue().get(0).concat("\n")
+            .concat(descriptionBuilderService.getDescription(ticketRQ))));
+      }
       if (NAMED_VALUE_FIELDS.contains(field.getFieldType())) {
         if (!CollectionUtils.isEmpty(field.getNamedValue())) {
           params.put(field.getId(), Collections.singletonList(field.getNamedValue().stream()
