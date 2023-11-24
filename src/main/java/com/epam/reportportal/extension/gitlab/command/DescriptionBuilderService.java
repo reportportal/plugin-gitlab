@@ -49,7 +49,6 @@ import org.slf4j.LoggerFactory;
  */
 public class DescriptionBuilderService {
 
-  public static final String JIRA_MARKUP_LINE_BREAK = "\\\\ ";
   public static final String BACK_LINK_HEADER = "**Back link to Report Portal:**";
   public static final String BACK_LINK_PATTERN = "[Link to defect](%s)";
   public static final String COMMENTS_HEADER = "**Test Item comments:**";
@@ -127,15 +126,12 @@ public class DescriptionBuilderService {
           );
           if (CollectionUtils.isNotEmpty(logs) && (ticketRQ.getIsIncludeLogs()
               || ticketRQ.getIsIncludeScreenshots())) {
-            descriptionBuilder.append("h3.*Test execution log:*\n")
-                .append(
-                    "{panel:title=Test execution log|borderStyle=solid|borderColor=#ccc|titleColor=#34302D|titleBGColor=#6DB33F}");
+            descriptionBuilder.append("*Test execution log:*\n");
             logs.forEach(log -> updateWithLog(descriptionBuilder,
                 log,
                 ticketRQ.getIsIncludeLogs(),
                 ticketRQ.getIsIncludeScreenshots()
             ));
-            descriptionBuilder.append("{panel}\n");
           }
         }));
     return descriptionBuilder;
@@ -178,9 +174,7 @@ public class DescriptionBuilderService {
           descriptionBuilder.append("[^").append(attachment.getFileId())
               .append(mimeType.getExtension()).append("]");
         }
-        descriptionBuilder.append(JIRA_MARKUP_LINE_BREAK);
       } catch (MimeTypeException e) {
-        descriptionBuilder.append(JIRA_MARKUP_LINE_BREAK);
         LOGGER.error("JIRATicketDescriptionService error: " + e.getMessage(), e);
       }
 
