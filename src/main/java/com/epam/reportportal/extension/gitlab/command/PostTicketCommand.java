@@ -84,8 +84,9 @@ public class PostTicketCommand extends ProjectMemberCommand<Ticket> {
     Map<String, String> params = new HashMap<>();
     for (PostFormField field : ticketRQ.getFields()) {
       if ("description".equals(field.getId())) {
-        String description = field.getValue().get(0).concat("\n")
-            .concat(descriptionBuilderService.getDescription(ticketRQ));
+        String extendedDescription = descriptionBuilderService.getDescription(ticketRQ);
+        System.err.println("DESCRIPTION BUILDER:::: " + extendedDescription);
+        String description = field.getValue().get(0) + "\n" + extendedDescription;
         params.put(field.getId(), description);
       }
       if (NAMED_VALUE_FIELDS.contains(field.getFieldType())) {
