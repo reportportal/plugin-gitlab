@@ -85,7 +85,7 @@ public class GitlabClient {
 
   public IssueDto postIssue(String projectId, Map<String, List<String>> queryParams) {
     String pathUrl = String.format(ISSUES_PATH, baseUrl, projectId);
-    HttpHeaders httpHeaders = new HttpHeaders();
+    HttpHeaders httpHeaders = getHttpHeaders();
     httpHeaders.setContentType(MediaType.APPLICATION_JSON);
     JSONObject personJsonObject = new JSONObject();
     personJsonObject.putAll(queryParams);
