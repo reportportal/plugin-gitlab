@@ -29,6 +29,7 @@ import com.epam.reportportal.extension.gitlab.info.impl.PluginInfoProviderImpl;
 import com.epam.reportportal.extension.gitlab.utils.GitlabObjectMapperProvider;
 import com.epam.reportportal.extension.gitlab.utils.MemoizingSupplier;
 import com.epam.reportportal.extension.util.RequestEntityConverter;
+import com.epam.ta.reportportal.binary.DataStoreService;
 import com.epam.ta.reportportal.dao.IntegrationRepository;
 import com.epam.ta.reportportal.dao.IntegrationTypeRepository;
 import com.epam.ta.reportportal.dao.LaunchRepository;
@@ -46,6 +47,7 @@ import org.jasypt.util.text.BasicTextEncryptor;
 import org.pf4j.Extension;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ApplicationEventMulticaster;
@@ -85,6 +87,9 @@ public class GitlabExtension implements ReportPortalExtensionPoint, DisposableBe
   private TestItemRepository testItemRepository;
   @Autowired
   private BasicTextEncryptor textEncryptor;
+  @Autowired
+  @Qualifier("attachmentDataStoreService")
+  private DataStoreService dataStoreService;
   private final Supplier<Map<String, CommonPluginCommand<?>>> commonPluginCommandMapping = new MemoizingSupplier<>(
       this::getCommonCommands);
 
@@ -106,7 +111,7 @@ public class GitlabExtension implements ReportPortalExtensionPoint, DisposableBe
     requestEntityConverter = new RequestEntityConverter(
         new GitlabObjectMapperProvider().getObjectMapper());
     descriptionBuilderServiceSupplier = new MemoizingSupplier<>(
-        () -> new DescriptionBuilderService(logRepository, testItemRepository));
+        () -> new DescriptionBuilderService(logRepository, testItemRepository, dataStoreService));
   }
 
   @Override
@@ -180,7 +185,7 @@ public class GitlabExtension implements ReportPortalExtensionPoint, DisposableBe
     commands.add(new GetIssueTypesCommand(projectRepository));
     commands.add(new GetIssueFieldsCommand(projectRepository));
     commands.add(new PostTicketCommand(projectRepository, gitlabClientProviderSupplier.get(),
-        requestEntityConverter, descriptionBuilderServiceSupplier.get()));
+        requestEntityConverter, descriptionBuilderServiceSupplier.get(), dataStoreService));
     return commands.stream().collect(Collectors.toMap(NamedPluginCommand::getName, it -> it));
   }
 }

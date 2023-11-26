@@ -24,11 +24,13 @@ import static com.epam.ta.reportportal.commons.validation.BusinessRule.expect;
 import static com.epam.ta.reportportal.ws.model.ErrorType.UNABLE_INTERACT_WITH_INTEGRATION;
 
 import com.epam.reportportal.extension.ProjectMemberCommand;
+import com.epam.reportportal.extension.gitlab.client.GitlabClient;
 import com.epam.reportportal.extension.gitlab.client.GitlabClientProvider;
 import com.epam.reportportal.extension.gitlab.utils.TicketMapper;
 import com.epam.reportportal.extension.util.CommandParamUtils;
 import com.epam.reportportal.extension.util.RequestEntityConverter;
 import com.epam.reportportal.extension.util.RequestEntityValidator;
+import com.epam.ta.reportportal.binary.DataStoreService;
 import com.epam.ta.reportportal.dao.ProjectRepository;
 import com.epam.ta.reportportal.entity.integration.Integration;
 import com.epam.ta.reportportal.exception.ReportPortalException;
@@ -37,6 +39,7 @@ import com.epam.ta.reportportal.ws.model.externalsystem.PostFormField;
 import com.epam.ta.reportportal.ws.model.externalsystem.PostTicketRQ;
 import com.epam.ta.reportportal.ws.model.externalsystem.Ticket;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -71,21 +74,23 @@ public class PostTicketCommand extends ProjectMemberCommand<Ticket> {
     String project = GitlabProperties.PROJECT.getParam(integration.getParams())
         .orElseThrow(() -> new ReportPortalException(ErrorType.UNABLE_INTERACT_WITH_INTEGRATION,
             "Project key is not specified."));
-    Map<String, String> queryParams = handleTicketFields(ticketRQ);
+    final GitlabClient gitlabClient = gitlabClientProvider.get(integration.getParams());
+    Map<String, String> queryParams = handleTicketFields(ticketRQ, gitlabClient);
     try {
-      return TicketMapper.toTicket(
-          gitlabClientProvider.get(integration.getParams()).postIssue(project, queryParams));
+      return TicketMapper.toTicket(gitlabClient.postIssue(project, queryParams));
     } catch (Exception e) {
       throw new ReportPortalException(ErrorType.BAD_REQUEST_ERROR, e.getMessage());
     }
   }
 
-  private Map<String, String> handleTicketFields(PostTicketRQ ticketRQ) {
+  private Map<String, String> handleTicketFields(PostTicketRQ ticketRQ, GitlabClient gitlabClient) {
     Map<String, String> params = new HashMap<>();
     for (PostFormField field : ticketRQ.getFields()) {
       if ("description".equals(field.getId())) {
-        String extendedDescription = descriptionBuilderService.getDescription(ticketRQ);
-        String description = field.getValue().get(0) + "\n" + extendedDescription;
+        String extendedDescription = descriptionBuilderService.getDescription(ticketRQ,
+            gitlabClient);
+        String description = Optional.ofNullable(field.getValue()).orElse(List.of("")).get(0) + "\n"
+            + extendedDescription;
         params.put(field.getId(), description);
         continue;
       }

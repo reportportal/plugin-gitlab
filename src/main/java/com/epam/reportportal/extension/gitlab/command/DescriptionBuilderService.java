@@ -19,6 +19,10 @@ package com.epam.reportportal.extension.gitlab.command;
 import static com.epam.ta.reportportal.commons.EntityUtils.TO_DATE;
 import static java.util.Optional.ofNullable;
 
+import com.epam.reportportal.extension.gitlab.client.GitlabClient;
+import com.epam.reportportal.extension.gitlab.client.GitlabClientProvider;
+import com.epam.reportportal.extension.gitlab.dto.UploadsLinkDto;
+import com.epam.ta.reportportal.binary.DataStoreService;
 import com.epam.ta.reportportal.dao.LogRepository;
 import com.epam.ta.reportportal.dao.TestItemRepository;
 import com.epam.ta.reportportal.entity.attachment.Attachment;
@@ -27,10 +31,13 @@ import com.epam.ta.reportportal.entity.log.Log;
 import com.epam.ta.reportportal.exception.ReportPortalException;
 import com.epam.ta.reportportal.ws.model.ErrorType;
 import com.epam.ta.reportportal.ws.model.externalsystem.PostTicketRQ;
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -40,6 +47,8 @@ import org.apache.tika.mime.MimeTypeException;
 import org.apache.tika.mime.MimeTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
 
 /**
  * Provide functionality for building ticket description
@@ -59,14 +68,18 @@ public class DescriptionBuilderService {
 
   private final LogRepository logRepository;
   private final TestItemRepository itemRepository;
+  private final DataStoreService dataStoreService;
   private final DateFormat dateFormat;
   private final MimeTypes mimeRepository;
+  private GitlabClient gitlabClient;
 
-  public DescriptionBuilderService(LogRepository logRepository, TestItemRepository itemRepository) {
+  public DescriptionBuilderService(LogRepository logRepository, TestItemRepository itemRepository,
+      DataStoreService dataStoreService) {
     this.dateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
     this.logRepository = logRepository;
     this.itemRepository = itemRepository;
     this.mimeRepository = TikaConfig.getDefaultConfig().getMimeRepository();
+    this.dataStoreService = dataStoreService;
   }
 
   /**
@@ -75,7 +88,8 @@ public class DescriptionBuilderService {
    * @param ticketRQ
    * @return
    */
-  public String getDescription(PostTicketRQ ticketRQ) {
+  public String getDescription(PostTicketRQ ticketRQ, GitlabClient gitlabClient) {
+    this.gitlabClient = gitlabClient;
     if (MapUtils.isEmpty(ticketRQ.getBackLinks())) {
       return "";
     }
@@ -163,21 +177,16 @@ public class DescriptionBuilderService {
   private void addAttachment(StringBuilder descriptionBuilder, Attachment attachment) {
     if (StringUtils.isNotBlank(attachment.getContentType()) && StringUtils.isNotBlank(
         attachment.getFileId())) {
-      try {
-        MimeType mimeType = mimeRepository.forName(attachment.getContentType());
-        if (attachment.getContentType().contains(IMAGE_CONTENT)) {
-          descriptionBuilder.append("!")
-              .append(attachment.getFileId())
-              .append(mimeType.getExtension())
-              .append(IMAGE_HEIGHT_TEMPLATE);
-        } else {
-          descriptionBuilder.append("[^").append(attachment.getFileId())
-              .append(mimeType.getExtension()).append("]");
+      Optional<InputStream> load = dataStoreService.load(attachment.getFileId());
+      if (load.isPresent()) {
+        try (InputStream fileInputStream = load.get()) {
+          final InputStreamResource inputStreamResource = new InputStreamResource(fileInputStream);
+          UploadsLinkDto link = gitlabClient.uploadFile(inputStreamResource);
+          descriptionBuilder.append(link.getMarkdown());
+        } catch (IOException e) {
+          throw new ReportPortalException(e.getMessage());
         }
-      } catch (MimeTypeException e) {
-        LOGGER.error("JIRATicketDescriptionService error: " + e.getMessage(), e);
       }
-
     }
   }
 }

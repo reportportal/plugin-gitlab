@@ -6,6 +6,7 @@ import com.epam.reportportal.extension.gitlab.dto.IssueDto;
 import com.epam.reportportal.extension.gitlab.dto.LabelDto;
 import com.epam.reportportal.extension.gitlab.dto.MilestoneDto;
 import com.epam.reportportal.extension.gitlab.dto.ProjectDto;
+import com.epam.reportportal.extension.gitlab.dto.UploadsLinkDto;
 import com.epam.reportportal.extension.gitlab.dto.UserDto;
 import com.epam.reportportal.extension.gitlab.utils.GitlabObjectMapperProvider;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -22,11 +23,14 @@ import org.jooq.tools.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -41,6 +45,7 @@ public class GitlabClient {
   private static final Integer FIRST_PAGE = 1;
   private static final String QUERY_PAGE = "page";
   private static final String QUERY_PER_PAGE = "per_page";
+  private static final String UPLOADS_PATH = "https://gitlab.com/group-learn1/rp/uploads";
   private static final String BASE_PATH = "%s/api/v4/projects/%s";
   private static final String GROUP_BASE_PATH = "%s/api/v4/groups/%s";
   private static final String ISSUES_PATH = BASE_PATH + "/issues";
@@ -90,9 +95,7 @@ public class GitlabClient {
     JSONObject personJsonObject = new JSONObject();
     personJsonObject.putAll(queryParams);
     HttpEntity<String> request = new HttpEntity<>(personJsonObject.toString(), httpHeaders);
-    System.err.println("$$$$" + personJsonObject + "$$$$$");
-    RestTemplate restTemplate = new RestTemplate();
-    return restTemplate.postForObject(pathUrl, request, IssueDto.class);
+    return exchangeRequest(request, new RestTemplate(), pathUrl, HttpMethod.POST);
   }
 
   public List<UserDto> searchUsers(String projectId, String term) {
@@ -133,7 +136,6 @@ public class GitlabClient {
     HttpEntity<String> entity = new HttpEntity<>(null, headers);
     RestTemplate restTemplate = new RestTemplate();
     String url = getUrl(path, queryParams);
-    logger.warn("Post ticker url: " + url);
     return exchangeRequest(entity, restTemplate, url, method);
   }
 
@@ -145,7 +147,7 @@ public class GitlabClient {
     exchangeRequest(FIRST_PAGE, response, entity, restTemplate, url);
   }
 
-  private <T> T exchangeRequest(HttpEntity<String> entity, RestTemplate restTemplate, String url,
+  private <T> T exchangeRequest(HttpEntity<?> entity, RestTemplate restTemplate, String url,
       HttpMethod httpMethod) {
     ResponseEntity<T> exchange = restTemplate.exchange(url, httpMethod, entity,
         new ParameterizedTypeReference<>() {
@@ -180,4 +182,12 @@ public class GitlabClient {
     return headers;
   }
 
+  public UploadsLinkDto uploadFile(InputStreamResource inputStreamResource) {
+    HttpHeaders headers = getHttpHeaders();
+    headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+    MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+    body.add("files", inputStreamResource);
+    HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(body, headers);
+    return exchangeRequest(request, new RestTemplate(), UPLOADS_PATH, HttpMethod.POST);
+  }
 }
