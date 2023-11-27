@@ -11,7 +11,6 @@ import com.epam.reportportal.extension.gitlab.dto.UserDto;
 import com.epam.reportportal.extension.gitlab.utils.GitlabObjectMapperProvider;
 import com.epam.ta.reportportal.entity.attachment.Attachment;
 import com.epam.ta.reportportal.exception.ReportPortalException;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
@@ -28,8 +27,6 @@ import org.jooq.tools.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -195,13 +192,18 @@ public class GitlabClient {
     HttpHeaders headers = getHttpHeaders();
     headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 
-    byte[] someByteArray;
+    byte[] byteArray;
     try {
-      someByteArray = inputStream.readAllBytes();
+      byteArray = inputStream.readAllBytes();
     } catch (IOException e) {
       throw new ReportPortalException(e.getMessage());
     }
     MultiValueMap<String, String> fileMap = new LinkedMultiValueMap<>();
+
+    System.out.println("!!!!!!");
+    System.out.println(attachment.getFileId());
+    System.out.println(attachment.getFileName());
+    System.out.println(attachment.getContentType());
 
     ContentDisposition contentDisposition = ContentDisposition
         .builder("form-data")
@@ -211,7 +213,7 @@ public class GitlabClient {
 
     fileMap.add(HttpHeaders.CONTENT_DISPOSITION, contentDisposition.toString());
 
-    HttpEntity<byte[]> fileEntity = new HttpEntity<>(someByteArray, fileMap);
+    HttpEntity<byte[]> fileEntity = new HttpEntity<>(byteArray, fileMap);
 
     MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
     body.add("file", fileEntity);
