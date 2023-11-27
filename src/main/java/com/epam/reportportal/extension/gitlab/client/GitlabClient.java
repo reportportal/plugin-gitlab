@@ -200,11 +200,6 @@ public class GitlabClient {
     }
     MultiValueMap<String, String> fileMap = new LinkedMultiValueMap<>();
 
-    System.out.println("!!!!!!");
-    System.out.println(attachment.getFileId());
-    System.out.println(attachment.getFileName());
-    System.out.println(attachment.getContentType());
-
     ContentDisposition contentDisposition = ContentDisposition
         .builder("form-data")
         .name("file")

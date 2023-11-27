@@ -20,7 +20,6 @@ import static com.epam.ta.reportportal.commons.EntityUtils.TO_DATE;
 import static java.util.Optional.ofNullable;
 
 import com.epam.reportportal.extension.gitlab.client.GitlabClient;
-import com.epam.reportportal.extension.gitlab.client.GitlabClientProvider;
 import com.epam.reportportal.extension.gitlab.dto.UploadsLinkDto;
 import com.epam.ta.reportportal.binary.DataStoreService;
 import com.epam.ta.reportportal.dao.LogRepository;
@@ -42,13 +41,9 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.config.TikaConfig;
-import org.apache.tika.mime.MimeType;
-import org.apache.tika.mime.MimeTypeException;
 import org.apache.tika.mime.MimeTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.core.io.Resource;
 
 /**
  * Provide functionality for building ticket description
@@ -58,9 +53,9 @@ import org.springframework.core.io.Resource;
  */
 public class DescriptionBuilderService {
 
-  public static final String BACK_LINK_HEADER = "**Back link to Report Portal:**";
-  public static final String BACK_LINK_PATTERN = "[Link to defect](%s)";
-  public static final String COMMENTS_HEADER = "**Test Item comments:**";
+  public static final String BACK_LINK_HEADER = "### **Back link to Report Portal:**";
+  public static final String BACK_LINK_PATTERN = "[Link to defect](%s)%n";
+  public static final String COMMENTS_HEADER = "### **Test Item comments:**";
   public static final String CODE = "`";
   private static final Logger LOGGER = LoggerFactory.getLogger(DescriptionBuilderService.class);
   private static final String IMAGE_CONTENT = "image";
@@ -110,10 +105,10 @@ public class DescriptionBuilderService {
       Long backLinkId, TestItem item) {
     if (StringUtils.isNotBlank(ticketRQ.getBackLinks().get(backLinkId))) {
       descriptionBuilder.append(BACK_LINK_HEADER)
-          .append("\n")
+          .append("\n\n\n")
           .append(" - ")
           .append(String.format(BACK_LINK_PATTERN, ticketRQ.getBackLinks().get(backLinkId)))
-          .append("\n");
+          .append("\n\n\n");
     }
     // For single test-item only
     if (ticketRQ.getIsIncludeComments()) {
@@ -123,8 +118,8 @@ public class DescriptionBuilderService {
         ofNullable(item.getItemResults()).flatMap(result -> ofNullable(result.getIssue()))
             .ifPresent(issue -> {
               if (StringUtils.isNotBlank(issue.getIssueDescription())) {
-                descriptionBuilder.append(COMMENTS_HEADER).append("\n")
-                    .append(issue.getIssueDescription()).append("\n");
+                descriptionBuilder.append(COMMENTS_HEADER).append("\n\n\n")
+                    .append(issue.getIssueDescription()).append("\n\n\n");
               }
             });
       }
@@ -143,7 +138,7 @@ public class DescriptionBuilderService {
           );
           if (CollectionUtils.isNotEmpty(logs) && (ticketRQ.getIsIncludeLogs()
               || ticketRQ.getIsIncludeScreenshots())) {
-            descriptionBuilder.append("*Test execution log:*\n");
+            descriptionBuilder.append("*Test execution log:* \n\n\n");
             logs.forEach(log -> updateWithLog(descriptionBuilder,
                 log,
                 ticketRQ.getIsIncludeLogs(),
@@ -173,7 +168,7 @@ public class DescriptionBuilderService {
         .append(", "));
     ofNullable(log.getLogLevel()).ifPresent(
         logLevel -> messageBuilder.append("Level: ").append(logLevel).append(", "));
-    messageBuilder.append("Log: ").append(log.getLogMessage()).append("\n");
+    messageBuilder.append("Log: ").append(log.getLogMessage()).append("\n\n\n");
     return messageBuilder.toString();
   }
 
