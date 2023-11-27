@@ -13,6 +13,7 @@ import com.epam.ta.reportportal.exception.ReportPortalException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,6 +27,7 @@ import org.jooq.tools.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -48,7 +50,7 @@ public class GitlabClient {
   private static final Integer FIRST_PAGE = 1;
   private static final String QUERY_PAGE = "page";
   private static final String QUERY_PER_PAGE = "per_page";
-  private static final String UPLOADS_PATH = "https://gitlab.com/group-learn1/rp/uploads";
+  private static final String UPLOADS_PATH = "https://gitlab.com/api/v4/projects/51851683/uploads";
   private static final String BASE_PATH = "%s/api/v4/projects/%s";
   private static final String GROUP_BASE_PATH = "%s/api/v4/groups/%s";
   private static final String ISSUES_PATH = BASE_PATH + "/issues";
@@ -188,16 +190,18 @@ public class GitlabClient {
   public UploadsLinkDto uploadFile(InputStream inputStream) {
     HttpHeaders headers = getHttpHeaders();
     headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-    MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-    body.add("file", new InputStreamResource(inputStream));
-    HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(body, headers);
-    final RestTemplate restTemplate = new RestTemplate();
-    final ResponseEntity<String> stringResponseEntity = restTemplate.postForEntity(UPLOADS_PATH,
-        request, String.class);
-    System.out.println(stringResponseEntity.getBody());
+
     try {
-      return new ObjectMapper().readValue(stringResponseEntity.getBody(), UploadsLinkDto.class);
-    } catch (JsonProcessingException e) {
+      ByteArrayResource resource = new ByteArrayResource(inputStream.readAllBytes());
+      MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+      body.add("file", resource);
+      HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(body, headers);
+      final RestTemplate restTemplate = new RestTemplate();
+      final ResponseEntity<String> stringResponseEntity = restTemplate.postForEntity(UPLOADS_PATH,
+          request, String.class);
+      System.out.println(stringResponseEntity.getBody());
+      return new UploadsLinkDto();
+    } catch (IOException e) {
       throw new ReportPortalException(e.getMessage());
     }
   }
