@@ -105,10 +105,10 @@ public class DescriptionBuilderService {
       Long backLinkId, TestItem item) {
     if (StringUtils.isNotBlank(ticketRQ.getBackLinks().get(backLinkId))) {
       descriptionBuilder.append(BACK_LINK_HEADER)
-          .append("\n\n\n")
+          .append("\n\n")
           .append(" - ")
           .append(String.format(BACK_LINK_PATTERN, ticketRQ.getBackLinks().get(backLinkId)))
-          .append("\n\n\n");
+          .append("\n\n");
     }
     // For single test-item only
     if (ticketRQ.getIsIncludeComments()) {
@@ -118,8 +118,8 @@ public class DescriptionBuilderService {
         ofNullable(item.getItemResults()).flatMap(result -> ofNullable(result.getIssue()))
             .ifPresent(issue -> {
               if (StringUtils.isNotBlank(issue.getIssueDescription())) {
-                descriptionBuilder.append(COMMENTS_HEADER).append("\n\n\n")
-                    .append(issue.getIssueDescription()).append("\n\n\n");
+                descriptionBuilder.append(COMMENTS_HEADER).append("\n\n")
+                    .append(issue.getIssueDescription()).append("\n\n");
               }
             });
       }
@@ -138,7 +138,7 @@ public class DescriptionBuilderService {
           );
           if (CollectionUtils.isNotEmpty(logs) && (ticketRQ.getIsIncludeLogs()
               || ticketRQ.getIsIncludeScreenshots())) {
-            descriptionBuilder.append("*Test execution log:* \n\n\n");
+            descriptionBuilder.append("### **Test execution log:** \n\n");
             logs.forEach(log -> updateWithLog(descriptionBuilder,
                 log,
                 ticketRQ.getIsIncludeLogs(),
@@ -168,7 +168,7 @@ public class DescriptionBuilderService {
         .append(", "));
     ofNullable(log.getLogLevel()).ifPresent(
         logLevel -> messageBuilder.append("Level: ").append(logLevel).append(", "));
-    messageBuilder.append("Log: ").append(log.getLogMessage()).append("\n\n\n");
+    messageBuilder.append("Log: ").append(log.getLogMessage()).append("\n\n");
     return messageBuilder.toString();
   }
 
@@ -179,7 +179,7 @@ public class DescriptionBuilderService {
       if (load.isPresent()) {
         try (InputStream fileInputStream = load.get()) {
           UploadsLinkDto link = gitlabClient.uploadFile(projectId, attachment, fileInputStream);
-          descriptionBuilder.append(link.getMarkdown());
+          descriptionBuilder.append(link.getMarkdown()).append("\n\n");
         } catch (IOException e) {
           throw new ReportPortalException(e.getMessage());
         }

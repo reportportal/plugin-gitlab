@@ -151,7 +151,7 @@ public class GitlabClient {
     exchangeRequest(FIRST_PAGE, response, entity, restTemplate, url);
   }
 
-  private <T> T exchangeRequest(HttpEntity<?> entity, RestTemplate restTemplate, String url,
+  private <T> T exchangeRequest(HttpEntity<String> entity, RestTemplate restTemplate, String url,
       HttpMethod httpMethod) {
     ResponseEntity<T> exchange = restTemplate.exchange(url, httpMethod, entity,
         new ParameterizedTypeReference<>() {
