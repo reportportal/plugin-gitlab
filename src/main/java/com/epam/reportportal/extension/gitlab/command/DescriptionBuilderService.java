@@ -169,8 +169,7 @@ public class DescriptionBuilderService {
         .append(", "));
     ofNullable(log.getLogLevel()).ifPresent(
         logLevel -> messageBuilder.append("Level: ").append(logLevel).append(", "));
-    messageBuilder.append("Log: ").append(log.getLogMessage()).append("\n\n");
-    messageBuilder.append(CODE);
+    messageBuilder.append("Log: ").append(log.getLogMessage()).append(CODE).append("\n\n");
     return messageBuilder.toString();
   }
 
