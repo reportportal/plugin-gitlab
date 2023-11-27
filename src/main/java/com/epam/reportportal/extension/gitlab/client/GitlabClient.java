@@ -191,7 +191,7 @@ public class GitlabClient {
 
   public UploadsLinkDto uploadFile(String projectId, Attachment attachment,
       InputStream inputStream) {
-    String pathUrl = String.format(USERS_PATH, baseUrl, projectId);
+    String pathUrl = String.format(UPLOADS_PATH, baseUrl, projectId);
     HttpHeaders headers = getHttpHeaders();
     headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 
