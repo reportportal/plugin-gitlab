@@ -9,6 +9,8 @@ import com.epam.reportportal.extension.gitlab.dto.ProjectDto;
 import com.epam.reportportal.extension.gitlab.dto.UploadsLinkDto;
 import com.epam.reportportal.extension.gitlab.dto.UserDto;
 import com.epam.reportportal.extension.gitlab.utils.GitlabObjectMapperProvider;
+import com.epam.ta.reportportal.exception.ReportPortalException;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.InputStream;
@@ -183,12 +185,20 @@ public class GitlabClient {
     return headers;
   }
 
-  public UploadsLinkDto uploadFile(InputStream inputStreamResource) {
+  public UploadsLinkDto uploadFile(InputStream inputStream) {
     HttpHeaders headers = getHttpHeaders();
     headers.setContentType(MediaType.MULTIPART_FORM_DATA);
     MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-    body.add("file", inputStreamResource);
+    body.add("file", new InputStreamResource(inputStream));
     HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(body, headers);
-    return exchangeRequest(request, new RestTemplate(), UPLOADS_PATH, HttpMethod.POST);
+    final RestTemplate restTemplate = new RestTemplate();
+    final ResponseEntity<String> stringResponseEntity = restTemplate.postForEntity(UPLOADS_PATH,
+        request, String.class);
+    System.out.println(stringResponseEntity.getBody());
+    try {
+      return new ObjectMapper().readValue(stringResponseEntity.getBody(), UploadsLinkDto.class);
+    } catch (JsonProcessingException e) {
+      throw new ReportPortalException(e.getMessage());
+    }
   }
 }
