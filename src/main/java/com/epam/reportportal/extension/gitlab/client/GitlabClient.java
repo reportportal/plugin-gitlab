@@ -1,17 +1,20 @@
 package com.epam.reportportal.extension.gitlab.client;
 
 
-import static org.hibernate.bytecode.BytecodeLogger.LOGGER;
-
 import com.epam.reportportal.extension.gitlab.dto.EpicDto;
 import com.epam.reportportal.extension.gitlab.dto.IssueDto;
 import com.epam.reportportal.extension.gitlab.dto.LabelDto;
 import com.epam.reportportal.extension.gitlab.dto.MilestoneDto;
 import com.epam.reportportal.extension.gitlab.dto.ProjectDto;
+import com.epam.reportportal.extension.gitlab.dto.UploadsLinkDto;
 import com.epam.reportportal.extension.gitlab.dto.UserDto;
 import com.epam.reportportal.extension.gitlab.utils.GitlabObjectMapperProvider;
+import com.epam.ta.reportportal.entity.attachment.Attachment;
+import com.epam.ta.reportportal.exception.ReportPortalException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -20,14 +23,18 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import org.jooq.tools.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -49,6 +56,7 @@ public class GitlabClient {
   private static final String USERS_PATH = BASE_PATH + "/users?search=%s";
   private static final String MILESTONES_PATH = BASE_PATH + "/milestones?search=%s";
   private static final String LABELS_PATH = BASE_PATH + "/labels?search=%s";
+  private static final String UPLOADS_PATH = BASE_PATH + "/uploads";
   private static final String EPICS_PATH = GROUP_BASE_PATH + "/epics?search=%s";
   private static final Map<String, List<String>> pageParams = Map.of(QUERY_PER_PAGE,
       List.of(DEFAULT_PAGE_SIZE.toString()), QUERY_PAGE, List.of("{page}"));
@@ -84,10 +92,15 @@ public class GitlabClient {
     });
   }
 
-  public IssueDto postIssue(String projectId, Map<String, List<String>> queryParams) {
+  public IssueDto postIssue(String projectId, Map<String, String> queryParams) {
     String pathUrl = String.format(ISSUES_PATH, baseUrl, projectId);
-    Object singleEntity = singleEntityRequests(pathUrl, queryParams, HttpMethod.POST);
-    return objectMapper.convertValue(singleEntity, IssueDto.class);
+    HttpHeaders httpHeaders = getHttpHeaders();
+    httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+    JSONObject personJsonObject = new JSONObject();
+    personJsonObject.putAll(queryParams);
+    HttpEntity<String> request = new HttpEntity<>(personJsonObject.toString(), httpHeaders);
+    return objectMapper.convertValue(
+        exchangeRequest(request, new RestTemplate(), pathUrl, HttpMethod.POST), IssueDto.class);
   }
 
   public List<UserDto> searchUsers(String projectId, String term) {
@@ -128,7 +141,6 @@ public class GitlabClient {
     HttpEntity<String> entity = new HttpEntity<>(null, headers);
     RestTemplate restTemplate = new RestTemplate();
     String url = getUrl(path, queryParams);
-    logger.warn("Post ticker url: " + url);
     return exchangeRequest(entity, restTemplate, url, method);
   }
 
@@ -175,4 +187,44 @@ public class GitlabClient {
     return headers;
   }
 
+  public UploadsLinkDto uploadFile(String projectId, Attachment attachment,
+      InputStream inputStream) {
+    String pathUrl = String.format(UPLOADS_PATH, baseUrl, projectId);
+    HttpHeaders headers = getHttpHeaders();
+    headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+    byte[] byteArray;
+    try {
+      byteArray = inputStream.readAllBytes();
+    } catch (IOException e) {
+      throw new ReportPortalException(e.getMessage());
+    }
+    MultiValueMap<String, String> fileMap = new LinkedMultiValueMap<>();
+
+    ContentDisposition contentDisposition = ContentDisposition
+        .builder("form-data")
+        .name("file")
+        .filename(attachment.getFileName())
+        .build();
+
+    fileMap.add(HttpHeaders.CONTENT_DISPOSITION, contentDisposition.toString());
+
+    HttpEntity<byte[]> fileEntity = new HttpEntity<>(byteArray, fileMap);
+
+    MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+    body.add("file", fileEntity);
+
+    HttpEntity<MultiValueMap<String, Object>> requestEntity =
+        new HttpEntity<>(body, headers);
+    try {
+      ResponseEntity<UploadsLinkDto> response = new RestTemplate().exchange(
+          pathUrl,
+          HttpMethod.POST,
+          requestEntity,
+          UploadsLinkDto.class);
+      return response.getBody();
+    } catch (Exception e) {
+      throw new ReportPortalException(e.getMessage());
+    }
+  }
 }

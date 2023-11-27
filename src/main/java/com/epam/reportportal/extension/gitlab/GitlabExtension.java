@@ -9,6 +9,7 @@ import com.epam.reportportal.extension.common.IntegrationTypeProperties;
 import com.epam.reportportal.extension.event.PluginEvent;
 import com.epam.reportportal.extension.event.StartLaunchEvent;
 import com.epam.reportportal.extension.gitlab.client.GitlabClientProvider;
+import com.epam.reportportal.extension.gitlab.command.DescriptionBuilderService;
 import com.epam.reportportal.extension.gitlab.command.GetIssueCommand;
 import com.epam.reportportal.extension.gitlab.command.GetIssueFieldsCommand;
 import com.epam.reportportal.extension.gitlab.command.GetIssueTypesCommand;
@@ -28,11 +29,13 @@ import com.epam.reportportal.extension.gitlab.info.impl.PluginInfoProviderImpl;
 import com.epam.reportportal.extension.gitlab.utils.GitlabObjectMapperProvider;
 import com.epam.reportportal.extension.gitlab.utils.MemoizingSupplier;
 import com.epam.reportportal.extension.util.RequestEntityConverter;
+import com.epam.ta.reportportal.binary.DataStoreService;
 import com.epam.ta.reportportal.dao.IntegrationRepository;
 import com.epam.ta.reportportal.dao.IntegrationTypeRepository;
 import com.epam.ta.reportportal.dao.LaunchRepository;
 import com.epam.ta.reportportal.dao.LogRepository;
 import com.epam.ta.reportportal.dao.ProjectRepository;
+import com.epam.ta.reportportal.dao.TestItemRepository;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -44,6 +47,7 @@ import org.jasypt.util.text.BasicTextEncryptor;
 import org.pf4j.Extension;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ApplicationEventMulticaster;
@@ -64,8 +68,7 @@ public class GitlabExtension implements ReportPortalExtensionPoint, DisposableBe
   private final Supplier<ApplicationListener<PluginEvent>> pluginLoadedListenerSupplier;
   private final Supplier<ApplicationListener<StartLaunchEvent>> startLaunchEventListenerSupplier;
   private final Supplier<GitlabClientProvider> gitlabClientProviderSupplier;
-  private final Supplier<Map<String, PluginCommand<?>>> pluginCommandMapping = new MemoizingSupplier<>(
-      this::getCommands);
+  private final Supplier<DescriptionBuilderService> descriptionBuilderServiceSupplier;
   @Autowired
   private ApplicationContext applicationContext;
   @Autowired
@@ -74,14 +77,21 @@ public class GitlabExtension implements ReportPortalExtensionPoint, DisposableBe
   private IntegrationRepository integrationRepository;
   @Autowired
   private ProjectRepository projectRepository;
+  private final Supplier<Map<String, PluginCommand<?>>> pluginCommandMapping = new MemoizingSupplier<>(
+      this::getCommands);
   @Autowired
   private LaunchRepository launchRepository;
   @Autowired
   private LogRepository logRepository;
   @Autowired
+  private TestItemRepository testItemRepository;
+  @Autowired
   private BasicTextEncryptor textEncryptor;
   private final Supplier<Map<String, CommonPluginCommand<?>>> commonPluginCommandMapping = new MemoizingSupplier<>(
       this::getCommonCommands);
+  @Autowired
+  @Qualifier("attachmentDataStoreService")
+  private DataStoreService dataStoreService;
 
   public GitlabExtension(Map<String, Object> initParams) {
     resourcesDir = IntegrationTypeProperties.RESOURCES_DIRECTORY.getValue(initParams)
@@ -100,6 +110,8 @@ public class GitlabExtension implements ReportPortalExtensionPoint, DisposableBe
         () -> new GitlabClientProvider(textEncryptor));
     requestEntityConverter = new RequestEntityConverter(
         new GitlabObjectMapperProvider().getObjectMapper());
+    descriptionBuilderServiceSupplier = new MemoizingSupplier<>(
+        () -> new DescriptionBuilderService(logRepository, testItemRepository, dataStoreService));
   }
 
   @Override
@@ -173,7 +185,7 @@ public class GitlabExtension implements ReportPortalExtensionPoint, DisposableBe
     commands.add(new GetIssueTypesCommand(projectRepository));
     commands.add(new GetIssueFieldsCommand(projectRepository));
     commands.add(new PostTicketCommand(projectRepository, gitlabClientProviderSupplier.get(),
-        requestEntityConverter));
+        requestEntityConverter, descriptionBuilderServiceSupplier.get()));
     return commands.stream().collect(Collectors.toMap(NamedPluginCommand::getName, it -> it));
   }
 }

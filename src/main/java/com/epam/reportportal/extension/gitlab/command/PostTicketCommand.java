@@ -24,11 +24,13 @@ import static com.epam.ta.reportportal.commons.validation.BusinessRule.expect;
 import static com.epam.ta.reportportal.ws.model.ErrorType.UNABLE_INTERACT_WITH_INTEGRATION;
 
 import com.epam.reportportal.extension.ProjectMemberCommand;
+import com.epam.reportportal.extension.gitlab.client.GitlabClient;
 import com.epam.reportportal.extension.gitlab.client.GitlabClientProvider;
 import com.epam.reportportal.extension.gitlab.utils.TicketMapper;
 import com.epam.reportportal.extension.util.CommandParamUtils;
 import com.epam.reportportal.extension.util.RequestEntityConverter;
 import com.epam.reportportal.extension.util.RequestEntityValidator;
+import com.epam.ta.reportportal.binary.DataStoreService;
 import com.epam.ta.reportportal.dao.ProjectRepository;
 import com.epam.ta.reportportal.entity.integration.Integration;
 import com.epam.ta.reportportal.exception.ReportPortalException;
@@ -36,7 +38,6 @@ import com.epam.ta.reportportal.ws.model.ErrorType;
 import com.epam.ta.reportportal.ws.model.externalsystem.PostFormField;
 import com.epam.ta.reportportal.ws.model.externalsystem.PostTicketRQ;
 import com.epam.ta.reportportal.ws.model.externalsystem.Ticket;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,12 +53,15 @@ public class PostTicketCommand extends ProjectMemberCommand<Ticket> {
 
   private final GitlabClientProvider gitlabClientProvider;
   private final RequestEntityConverter requestEntityConverter;
+  private final DescriptionBuilderService descriptionBuilderService;
 
   public PostTicketCommand(ProjectRepository projectRepository,
-      GitlabClientProvider gitlabClientProvider, RequestEntityConverter requestEntityConverter) {
+      GitlabClientProvider gitlabClientProvider, RequestEntityConverter requestEntityConverter,
+      DescriptionBuilderService descriptionBuilderService) {
     super(projectRepository);
     this.gitlabClientProvider = gitlabClientProvider;
     this.requestEntityConverter = requestEntityConverter;
+    this.descriptionBuilderService = descriptionBuilderService;
   }
 
   @Override
@@ -70,21 +74,30 @@ public class PostTicketCommand extends ProjectMemberCommand<Ticket> {
     String project = GitlabProperties.PROJECT.getParam(integration.getParams())
         .orElseThrow(() -> new ReportPortalException(ErrorType.UNABLE_INTERACT_WITH_INTEGRATION,
             "Project key is not specified."));
-    Map<String, List<String>> queryParams = handleTicketFields(ticketRQ.getFields());
+    final GitlabClient gitlabClient = gitlabClientProvider.get(integration.getParams());
+    Map<String, String> queryParams = handleTicketFields(ticketRQ, gitlabClient, project);
     try {
-      return TicketMapper.toTicket(
-          gitlabClientProvider.get(integration.getParams()).postIssue(project, queryParams));
+      return TicketMapper.toTicket(gitlabClient.postIssue(project, queryParams));
     } catch (Exception e) {
       throw new ReportPortalException(ErrorType.BAD_REQUEST_ERROR, e.getMessage());
     }
   }
 
-  private Map<String, List<String>> handleTicketFields(List<PostFormField> fields) {
-    Map<String, List<String>> params = new HashMap<>();
-    for (PostFormField field : fields) {
+  private Map<String, String> handleTicketFields(PostTicketRQ ticketRQ, GitlabClient gitlabClient,
+      String gitlabProjectId) {
+    Map<String, String> params = new HashMap<>();
+    for (PostFormField field : ticketRQ.getFields()) {
+      if ("description".equals(field.getId())) {
+        String extendedDescription = descriptionBuilderService.getDescription(ticketRQ,
+            gitlabClient, gitlabProjectId);
+        String description = Optional.ofNullable(field.getValue()).orElse(List.of("")).get(0) + "\n"
+            + extendedDescription;
+        params.put(field.getId(), description);
+        continue;
+      }
       if (NAMED_VALUE_FIELDS.contains(field.getFieldType())) {
         if (!CollectionUtils.isEmpty(field.getNamedValue())) {
-          params.put(field.getId(), Collections.singletonList(field.getNamedValue().stream()
+          params.put(field.getId(), field.getNamedValue().stream()
               .filter(Objects::nonNull)
               .map(val -> {
                 if (LABELS.equals(field.getId())) {
@@ -92,17 +105,14 @@ public class PostTicketCommand extends ProjectMemberCommand<Ticket> {
                 }
                 return String.valueOf(val.getId());
               })
-              .collect(Collectors.joining(","))));
+              .collect(Collectors.joining(",")));
         }
       } else if (!CollectionUtils.isEmpty(field.getValue())) {
-        params.put(field.getId(), field.getValue());
+        params.put(field.getId(), String.join(",", field.getValue()));
       }
     }
     Optional.ofNullable(params.get(ISSUE_TYPE))
-        .ifPresent(value -> params.put(ISSUE_TYPE, value.stream()
-            .filter(Objects::nonNull)
-            .map(String::toLowerCase)
-            .collect(Collectors.toList())));
+        .ifPresent(value -> params.put(ISSUE_TYPE, value.toLowerCase()));
     return params;
   }
 
