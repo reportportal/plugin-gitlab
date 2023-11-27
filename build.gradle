@@ -48,8 +48,6 @@ dependencies {
         annotationProcessor 'com.github.reportportal:plugin-api:3876fab'
     }
 
-    implementation 'com.github.gitlab4j:gitlab4j-api:main-SNAPSHOT'
-
     implementation group: 'javax.servlet', name: 'javax.servlet-api', version: '4.0.1'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.6.0'
     testImplementation 'org.mockito:mockito-junit-jupiter:3.12.4'

@@ -75,7 +75,7 @@ public class PostTicketCommand extends ProjectMemberCommand<Ticket> {
         .orElseThrow(() -> new ReportPortalException(ErrorType.UNABLE_INTERACT_WITH_INTEGRATION,
             "Project key is not specified."));
     final GitlabClient gitlabClient = gitlabClientProvider.get(integration.getParams());
-    Map<String, String> queryParams = handleTicketFields(ticketRQ, gitlabClient);
+    Map<String, String> queryParams = handleTicketFields(ticketRQ, gitlabClient, project);
     try {
       return TicketMapper.toTicket(gitlabClient.postIssue(project, queryParams));
     } catch (Exception e) {
@@ -83,12 +83,13 @@ public class PostTicketCommand extends ProjectMemberCommand<Ticket> {
     }
   }
 
-  private Map<String, String> handleTicketFields(PostTicketRQ ticketRQ, GitlabClient gitlabClient) {
+  private Map<String, String> handleTicketFields(PostTicketRQ ticketRQ, GitlabClient gitlabClient,
+      String gitlabProjectId) {
     Map<String, String> params = new HashMap<>();
     for (PostFormField field : ticketRQ.getFields()) {
       if ("description".equals(field.getId())) {
         String extendedDescription = descriptionBuilderService.getDescription(ticketRQ,
-            gitlabClient);
+            gitlabClient, gitlabProjectId);
         String description = Optional.ofNullable(field.getValue()).orElse(List.of("")).get(0) + "\n"
             + extendedDescription;
         params.put(field.getId(), description);

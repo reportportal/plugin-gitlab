@@ -72,6 +72,7 @@ public class DescriptionBuilderService {
   private final DateFormat dateFormat;
   private final MimeTypes mimeRepository;
   private GitlabClient gitlabClient;
+  private String projectId;
 
   public DescriptionBuilderService(LogRepository logRepository, TestItemRepository itemRepository,
       DataStoreService dataStoreService) {
@@ -88,8 +89,10 @@ public class DescriptionBuilderService {
    * @param ticketRQ
    * @return
    */
-  public String getDescription(PostTicketRQ ticketRQ, GitlabClient gitlabClient) {
+  public String getDescription(PostTicketRQ ticketRQ, GitlabClient gitlabClient,
+      String gitlabProjectId) {
     this.gitlabClient = gitlabClient;
+    this.projectId = gitlabProjectId;
     if (MapUtils.isEmpty(ticketRQ.getBackLinks())) {
       return "";
     }
@@ -180,7 +183,7 @@ public class DescriptionBuilderService {
       Optional<InputStream> load = dataStoreService.load(attachment.getFileId());
       if (load.isPresent()) {
         try (InputStream fileInputStream = load.get()) {
-          UploadsLinkDto link = gitlabClient.uploadFile(fileInputStream);
+          UploadsLinkDto link = gitlabClient.uploadFile(projectId, attachment, fileInputStream);
           descriptionBuilder.append(link.getMarkdown());
         } catch (IOException e) {
           throw new ReportPortalException(e.getMessage());

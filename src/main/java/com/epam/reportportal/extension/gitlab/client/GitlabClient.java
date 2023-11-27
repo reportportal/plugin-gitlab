@@ -9,6 +9,7 @@ import com.epam.reportportal.extension.gitlab.dto.ProjectDto;
 import com.epam.reportportal.extension.gitlab.dto.UploadsLinkDto;
 import com.epam.reportportal.extension.gitlab.dto.UserDto;
 import com.epam.reportportal.extension.gitlab.utils.GitlabObjectMapperProvider;
+import com.epam.ta.reportportal.entity.attachment.Attachment;
 import com.epam.ta.reportportal.exception.ReportPortalException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -29,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -50,7 +52,6 @@ public class GitlabClient {
   private static final Integer FIRST_PAGE = 1;
   private static final String QUERY_PAGE = "page";
   private static final String QUERY_PER_PAGE = "per_page";
-  private static final String UPLOADS_PATH = "https://gitlab.com/api/v4/projects/51851683/uploads";
   private static final String BASE_PATH = "%s/api/v4/projects/%s";
   private static final String GROUP_BASE_PATH = "%s/api/v4/groups/%s";
   private static final String ISSUES_PATH = BASE_PATH + "/issues";
@@ -58,6 +59,7 @@ public class GitlabClient {
   private static final String USERS_PATH = BASE_PATH + "/users?search=%s";
   private static final String MILESTONES_PATH = BASE_PATH + "/milestones?search=%s";
   private static final String LABELS_PATH = BASE_PATH + "/labels?search=%s";
+  private static final String UPLOADS_PATH = BASE_PATH + "/uploads";
   private static final String EPICS_PATH = GROUP_BASE_PATH + "/epics?search=%s";
   private static final Map<String, List<String>> pageParams = Map.of(QUERY_PER_PAGE,
       List.of(DEFAULT_PAGE_SIZE.toString()), QUERY_PAGE, List.of("{page}"));
@@ -187,21 +189,43 @@ public class GitlabClient {
     return headers;
   }
 
-  public UploadsLinkDto uploadFile(InputStream inputStream) {
+  public UploadsLinkDto uploadFile(String projectId, Attachment attachment,
+      InputStream inputStream) {
+    String pathUrl = String.format(USERS_PATH, baseUrl, projectId);
     HttpHeaders headers = getHttpHeaders();
     headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 
+    byte[] someByteArray;
     try {
-      ByteArrayResource resource = new ByteArrayResource(inputStream.readAllBytes());
-      MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-      body.add("file", resource);
-      HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(body, headers);
-      final RestTemplate restTemplate = new RestTemplate();
-      final ResponseEntity<String> stringResponseEntity = restTemplate.postForEntity(UPLOADS_PATH,
-          request, String.class);
-      System.out.println(stringResponseEntity.getBody());
-      return new UploadsLinkDto();
+      someByteArray = inputStream.readAllBytes();
     } catch (IOException e) {
+      throw new ReportPortalException(e.getMessage());
+    }
+    MultiValueMap<String, String> fileMap = new LinkedMultiValueMap<>();
+
+    ContentDisposition contentDisposition = ContentDisposition
+        .builder("form-data")
+        .name("file")
+        .filename(attachment.getFileName())
+        .build();
+
+    fileMap.add(HttpHeaders.CONTENT_DISPOSITION, contentDisposition.toString());
+
+    HttpEntity<byte[]> fileEntity = new HttpEntity<>(someByteArray, fileMap);
+
+    MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+    body.add("file", fileEntity);
+
+    HttpEntity<MultiValueMap<String, Object>> requestEntity =
+        new HttpEntity<>(body, headers);
+    try {
+      ResponseEntity<UploadsLinkDto> response = new RestTemplate().exchange(
+          pathUrl,
+          HttpMethod.POST,
+          requestEntity,
+          UploadsLinkDto.class);
+      return response.getBody();
+    } catch (Exception e) {
       throw new ReportPortalException(e.getMessage());
     }
   }
