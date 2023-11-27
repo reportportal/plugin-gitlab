@@ -180,8 +180,7 @@ public class DescriptionBuilderService {
       Optional<InputStream> load = dataStoreService.load(attachment.getFileId());
       if (load.isPresent()) {
         try (InputStream fileInputStream = load.get()) {
-          final InputStreamResource inputStreamResource = new InputStreamResource(fileInputStream);
-          UploadsLinkDto link = gitlabClient.uploadFile(inputStreamResource);
+          UploadsLinkDto link = gitlabClient.uploadFile(fileInputStream);
           descriptionBuilder.append(link.getMarkdown());
         } catch (IOException e) {
           throw new ReportPortalException(e.getMessage());

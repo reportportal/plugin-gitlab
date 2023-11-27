@@ -11,6 +11,7 @@ import com.epam.reportportal.extension.gitlab.dto.UserDto;
 import com.epam.reportportal.extension.gitlab.utils.GitlabObjectMapperProvider;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -182,11 +183,11 @@ public class GitlabClient {
     return headers;
   }
 
-  public UploadsLinkDto uploadFile(InputStreamResource inputStreamResource) {
+  public UploadsLinkDto uploadFile(InputStream inputStreamResource) {
     HttpHeaders headers = getHttpHeaders();
     headers.setContentType(MediaType.MULTIPART_FORM_DATA);
     MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-    body.add("files", inputStreamResource);
+    body.add("file", inputStreamResource);
     HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(body, headers);
     return exchangeRequest(request, new RestTemplate(), UPLOADS_PATH, HttpMethod.POST);
   }
