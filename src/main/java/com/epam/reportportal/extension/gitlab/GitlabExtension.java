@@ -87,11 +87,11 @@ public class GitlabExtension implements ReportPortalExtensionPoint, DisposableBe
   private TestItemRepository testItemRepository;
   @Autowired
   private BasicTextEncryptor textEncryptor;
+  private final Supplier<Map<String, CommonPluginCommand<?>>> commonPluginCommandMapping = new MemoizingSupplier<>(
+      this::getCommonCommands);
   @Autowired
   @Qualifier("attachmentDataStoreService")
   private DataStoreService dataStoreService;
-  private final Supplier<Map<String, CommonPluginCommand<?>>> commonPluginCommandMapping = new MemoizingSupplier<>(
-      this::getCommonCommands);
 
   public GitlabExtension(Map<String, Object> initParams) {
     resourcesDir = IntegrationTypeProperties.RESOURCES_DIRECTORY.getValue(initParams)
@@ -185,7 +185,7 @@ public class GitlabExtension implements ReportPortalExtensionPoint, DisposableBe
     commands.add(new GetIssueTypesCommand(projectRepository));
     commands.add(new GetIssueFieldsCommand(projectRepository));
     commands.add(new PostTicketCommand(projectRepository, gitlabClientProviderSupplier.get(),
-        requestEntityConverter, descriptionBuilderServiceSupplier.get(), dataStoreService));
+        requestEntityConverter, descriptionBuilderServiceSupplier.get()));
     return commands.stream().collect(Collectors.toMap(NamedPluginCommand::getName, it -> it));
   }
 }
