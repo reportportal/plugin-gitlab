@@ -152,7 +152,7 @@ public class DescriptionBuilderService {
   private void updateWithLog(StringBuilder descriptionBuilder, Log log, boolean includeLog,
       boolean includeScreenshot) {
     if (includeLog) {
-      descriptionBuilder.append(CODE).append(getFormattedMessage(log)).append(CODE);
+      descriptionBuilder.append(getFormattedMessage(log));
     }
 
     if (includeScreenshot) {
@@ -163,12 +163,14 @@ public class DescriptionBuilderService {
 
   private String getFormattedMessage(Log log) {
     StringBuilder messageBuilder = new StringBuilder();
+    messageBuilder.append(CODE);
     ofNullable(log.getLogTime()).ifPresent(logTime -> messageBuilder.append(" Time: ")
         .append(dateFormat.format(TO_DATE.apply(logTime)))
         .append(", "));
     ofNullable(log.getLogLevel()).ifPresent(
         logLevel -> messageBuilder.append("Level: ").append(logLevel).append(", "));
     messageBuilder.append("Log: ").append(log.getLogMessage()).append("\n\n");
+    messageBuilder.append(CODE);
     return messageBuilder.toString();
   }
 

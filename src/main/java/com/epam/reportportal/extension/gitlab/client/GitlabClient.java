@@ -99,7 +99,8 @@ public class GitlabClient {
     JSONObject personJsonObject = new JSONObject();
     personJsonObject.putAll(queryParams);
     HttpEntity<String> request = new HttpEntity<>(personJsonObject.toString(), httpHeaders);
-    return exchangeRequest(request, new RestTemplate(), pathUrl, HttpMethod.POST);
+    return objectMapper.convertValue(
+        exchangeRequest(request, new RestTemplate(), pathUrl, HttpMethod.POST), IssueDto.class);
   }
 
   public List<UserDto> searchUsers(String projectId, String term) {
