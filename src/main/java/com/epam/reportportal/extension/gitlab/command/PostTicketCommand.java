@@ -30,7 +30,6 @@ import com.epam.reportportal.extension.gitlab.utils.TicketMapper;
 import com.epam.reportportal.extension.util.CommandParamUtils;
 import com.epam.reportportal.extension.util.RequestEntityConverter;
 import com.epam.reportportal.extension.util.RequestEntityValidator;
-import com.epam.ta.reportportal.binary.DataStoreService;
 import com.epam.ta.reportportal.dao.ProjectRepository;
 import com.epam.ta.reportportal.entity.integration.Integration;
 import com.epam.ta.reportportal.exception.ReportPortalException;
@@ -39,7 +38,6 @@ import com.epam.ta.reportportal.ws.model.externalsystem.PostFormField;
 import com.epam.ta.reportportal.ws.model.externalsystem.PostTicketRQ;
 import com.epam.ta.reportportal.ws.model.externalsystem.Ticket;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -88,11 +86,14 @@ public class PostTicketCommand extends ProjectMemberCommand<Ticket> {
     Map<String, String> params = new HashMap<>();
     for (PostFormField field : ticketRQ.getFields()) {
       if ("description".equals(field.getId())) {
-        String extendedDescription = descriptionBuilderService.getDescription(ticketRQ,
-            gitlabClient, gitlabProjectId);
-        String description = Optional.ofNullable(field.getValue()).orElse(List.of("")).get(0) + "\n"
-            + extendedDescription;
-        params.put(field.getId(), description);
+        String description = "";
+        if (!CollectionUtils.isEmpty(field.getValue())) {
+          description = Optional.ofNullable(field.getValue().iterator().next()).orElse("");
+        }
+        String extended = Optional.ofNullable(descriptionBuilderService.getDescription(ticketRQ,
+            gitlabClient, gitlabProjectId)).orElse("");
+        String extendedDescription = description + "\n" + extended;
+        params.put(field.getId(), extendedDescription);
         continue;
       }
       if (NAMED_VALUE_FIELDS.contains(field.getFieldType())) {
