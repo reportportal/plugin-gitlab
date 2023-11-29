@@ -15,17 +15,21 @@
  */
 package com.epam.reportportal.extension.gitlab.command;
 
+import static com.epam.reportportal.extension.gitlab.command.GetIssueTypesCommand.ISSUE;
 import static com.epam.reportportal.extension.gitlab.command.PredefinedFieldTypes.AUTOCOMPLETE;
 import static com.epam.reportportal.extension.gitlab.command.PredefinedFieldTypes.CREATABLE_MULTI_AUTOCOMPLETE;
-import static com.epam.reportportal.extension.gitlab.command.PredefinedFieldTypes.MULTI_AUTOCOMPLETE;
 
 import com.epam.reportportal.extension.ProjectMemberCommand;
 import com.epam.ta.reportportal.dao.ProjectRepository;
 import com.epam.ta.reportportal.entity.integration.Integration;
+import com.epam.ta.reportportal.exception.ReportPortalException;
+import com.epam.ta.reportportal.ws.model.ErrorType;
 import com.epam.ta.reportportal.ws.model.externalsystem.AllowedValue;
 import com.epam.ta.reportportal.ws.model.externalsystem.PostFormField;
+import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author <a href="mailto:pavel_bortnik@epam.com">Pavel Bortnik</a>
@@ -43,7 +47,11 @@ public class GetIssueFieldsCommand extends ProjectMemberCommand<List<PostFormFie
 
   @Override
   protected List<PostFormField> invokeCommand(Integration integration, Map<String, Object> params) {
-    return List.of(
+    String issueTypeParam = Optional.ofNullable(params.get(ISSUE_TYPE))
+        .map(it -> (String) it)
+        .orElseThrow(() -> new ReportPortalException(ErrorType.BAD_REQUEST_ERROR,
+            "Issue type is not provided"));
+    List<PostFormField> result = Lists.newArrayList(
         PostFormField.builder().id("title").fieldName("Title").fieldType("string").isRequired(true)
             .build(),
         PostFormField.builder().id("description").fieldName("Description").fieldType("string")
@@ -66,15 +74,16 @@ public class GetIssueFieldsCommand extends ProjectMemberCommand<List<PostFormFie
             .fieldType(CREATABLE_MULTI_AUTOCOMPLETE)
             .commandName("searchLabels").build(),
         PostFormField.builder().id("milestone_id").fieldName("Milestone").fieldType("autocomplete")
-            .commandName("searchMilestones").build(),
-        PostFormField.builder().id("epic_id").fieldName("Epic").fieldType("autocomplete")
-            .commandName("searchEpics").description(PAID_DESCRIPTION).build(),
-        PostFormField.builder().id("weight").fieldName("Weight").fieldType("integer")
-            .description(PAID_DESCRIPTION).build(),
-        PostFormField.builder().id("assignee_ids").fieldName("Assignees")
-            .fieldType(MULTI_AUTOCOMPLETE).commandName("searchUsers").description(PAID_DESCRIPTION)
-            .build()
+            .commandName("searchMilestones").build()
     );
+
+    if (ISSUE.equalsIgnoreCase(issueTypeParam)) {
+      result.add(PostFormField.builder().id("epic_id").fieldName("Epic").fieldType("autocomplete")
+          .commandName("searchEpics").description(PAID_DESCRIPTION).build());
+      result.add(PostFormField.builder().id("weight").fieldName("Weight").fieldType("integer")
+          .description(PAID_DESCRIPTION).build());
+    }
+    return result;
   }
 
   @Override

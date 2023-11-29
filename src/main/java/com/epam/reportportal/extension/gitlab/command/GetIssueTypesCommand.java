@@ -26,6 +26,9 @@ import java.util.Map;
  */
 public class GetIssueTypesCommand extends ProjectMemberCommand<List<String>> {
 
+  public static final String ISSUE = "Issue";
+  public static final String INCIDENT = "Incident";
+
   public GetIssueTypesCommand(ProjectRepository projectRepository) {
     super(projectRepository);
   }
@@ -37,6 +40,6 @@ public class GetIssueTypesCommand extends ProjectMemberCommand<List<String>> {
 
   @Override
   protected List<String> invokeCommand(Integration integration, Map<String, Object> params) {
-    return List.of("Issue", "Incident");
+    return List.of(ISSUE, INCIDENT);
   }
 }
