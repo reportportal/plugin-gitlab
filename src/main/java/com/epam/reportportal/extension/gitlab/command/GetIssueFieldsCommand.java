@@ -16,8 +16,8 @@
 package com.epam.reportportal.extension.gitlab.command;
 
 import static com.epam.reportportal.extension.gitlab.command.GetIssueTypesCommand.ISSUE;
-import static com.epam.reportportal.extension.gitlab.command.PredefinedFieldTypes.AUTOCOMPLETE;
 import static com.epam.reportportal.extension.gitlab.command.PredefinedFieldTypes.CREATABLE_MULTI_AUTOCOMPLETE;
+import static com.epam.reportportal.extension.gitlab.command.PredefinedFieldTypes.MULTI_AUTOCOMPLETE;
 
 import com.epam.reportportal.extension.ProjectMemberCommand;
 import com.epam.ta.reportportal.dao.ProjectRepository;
@@ -40,6 +40,7 @@ public class GetIssueFieldsCommand extends ProjectMemberCommand<List<PostFormFie
   public static final String LABELS = "labels";
 
   private static final String PAID_DESCRIPTION = "Available only for paid Enterprise version of GitLab";
+  private static final String ASSIGNEE_DESCRIPTION = "Note that the free version of GitLab allows only one assignee";
 
   public GetIssueFieldsCommand(ProjectRepository projectRepository) {
     super(projectRepository);
@@ -67,8 +68,9 @@ public class GetIssueFieldsCommand extends ProjectMemberCommand<List<PostFormFie
                 new AllowedValue("false", "No"),
                 new AllowedValue("true", "Yes")))
             .build(),
-        PostFormField.builder().id("assignee_id").fieldName("Assignee").fieldType(AUTOCOMPLETE)
-            .commandName("searchUsers").build(),
+        PostFormField.builder().id("assignee_ids").fieldName("Assignee(s)")
+            .fieldType(MULTI_AUTOCOMPLETE).commandName("searchUsers")
+            .description(ASSIGNEE_DESCRIPTION).build(),
         PostFormField.builder().id("due_date").fieldName("Due Date").fieldType("string").build(),
         PostFormField.builder().id(LABELS).fieldName("Labels")
             .fieldType(CREATABLE_MULTI_AUTOCOMPLETE)
@@ -79,9 +81,9 @@ public class GetIssueFieldsCommand extends ProjectMemberCommand<List<PostFormFie
 
     if (ISSUE.equalsIgnoreCase(issueTypeParam)) {
       result.add(PostFormField.builder().id("epic_id").fieldName("Epic").fieldType("autocomplete")
-          .commandName("searchEpics").description(PAID_DESCRIPTION).build());
+          .commandName("searchEpics").description(ASSIGNEE_DESCRIPTION).build());
       result.add(PostFormField.builder().id("weight").fieldName("Weight").fieldType("integer")
-          .description(PAID_DESCRIPTION).build());
+          .description(ASSIGNEE_DESCRIPTION).build());
     }
     return result;
   }
