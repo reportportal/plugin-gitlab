@@ -37,6 +37,7 @@ import java.util.Optional;
 public class GetIssueFieldsCommand extends ProjectMemberCommand<List<PostFormField>> {
 
   public static final String ISSUE_TYPE = "issue_type";
+  public static final String ISSUE_TYPE_PARAM = "issueType";
   public static final String LABELS = "labels";
 
   private static final String PAID_DESCRIPTION = "Available only for paid Enterprise version of GitLab";
@@ -48,7 +49,7 @@ public class GetIssueFieldsCommand extends ProjectMemberCommand<List<PostFormFie
 
   @Override
   protected List<PostFormField> invokeCommand(Integration integration, Map<String, Object> params) {
-    String issueTypeParam = Optional.ofNullable(params.get(ISSUE_TYPE))
+    String issueTypeParam = Optional.ofNullable(params.get(ISSUE_TYPE_PARAM))
         .map(it -> (String) it)
         .orElseThrow(() -> new ReportPortalException(ErrorType.BAD_REQUEST_ERROR,
             "Issue type is not provided"));
