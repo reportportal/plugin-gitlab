@@ -82,9 +82,9 @@ public class GetIssueFieldsCommand extends ProjectMemberCommand<List<PostFormFie
 
     if (ISSUE.equalsIgnoreCase(issueTypeParam)) {
       result.add(PostFormField.builder().id("epic_id").fieldName("Epic").fieldType("autocomplete")
-          .commandName("searchEpics").description(ASSIGNEE_DESCRIPTION).build());
+          .commandName("searchEpics").description(PAID_DESCRIPTION).build());
       result.add(PostFormField.builder().id("weight").fieldName("Weight").fieldType("integer")
-          .description(ASSIGNEE_DESCRIPTION).build());
+          .description(PAID_DESCRIPTION).build());
     }
     return result;
   }
