@@ -16,7 +16,6 @@
 package com.epam.reportportal.extension.gitlab.command;
 
 import static java.util.Optional.ofNullable;
-import static org.hibernate.bytecode.BytecodeLogger.LOGGER;
 
 import com.epam.reportportal.extension.PluginCommand;
 import com.epam.reportportal.extension.gitlab.client.GitlabClient;
@@ -27,11 +26,15 @@ import com.epam.ta.reportportal.exception.ReportPortalException;
 import com.epam.ta.reportportal.ws.model.ErrorType;
 import java.util.Map;
 import java.util.Objects;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Zsolt Nagyaghy
  */
 public class TestConnectionCommand implements PluginCommand<Boolean> {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(TestConnectionCommand.class);
 
   private final GitlabClientProvider gitlabClientProvider;
 
