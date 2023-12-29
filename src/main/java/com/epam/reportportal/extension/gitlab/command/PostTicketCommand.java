@@ -112,6 +112,11 @@ public class PostTicketCommand extends ProjectMemberCommand<Ticket> {
         params.put(field.getId(), String.join(",", field.getValue()));
       }
     }
+    if (!params.containsKey("description")) {
+      String extendedDescription = Optional.ofNullable(descriptionBuilderService.getDescription(ticketRQ,
+          gitlabClient, gitlabProjectId)).orElse("");
+      params.put("description", extendedDescription);
+    }
     Optional.ofNullable(params.get(ISSUE_TYPE))
         .ifPresent(value -> params.put(ISSUE_TYPE, value.toLowerCase()));
     return params;
