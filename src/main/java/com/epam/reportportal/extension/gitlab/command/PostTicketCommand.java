@@ -86,9 +86,6 @@ public class PostTicketCommand extends ProjectMemberCommand<Ticket> {
     Map<String, String> params = new HashMap<>();
     for (PostFormField field : ticketRQ.getFields()) {
       if ("description".equals(field.getId())) {
-        continue;
-      }
-      if (!params.containsKey("description")) {
         String description = "";
         if (!CollectionUtils.isEmpty(field.getValue())) {
           description = Optional.ofNullable(field.getValue().iterator().next()).orElse("");
@@ -114,6 +111,11 @@ public class PostTicketCommand extends ProjectMemberCommand<Ticket> {
       } else if (!CollectionUtils.isEmpty(field.getValue())) {
         params.put(field.getId(), String.join(",", field.getValue()));
       }
+    }
+    if (!params.containsKey("description")) {
+      String extendedDescription = Optional.ofNullable(descriptionBuilderService.getDescription(ticketRQ,
+          gitlabClient, gitlabProjectId)).orElse("");
+      params.put("description", extendedDescription);
     }
     Optional.ofNullable(params.get(ISSUE_TYPE))
         .ifPresent(value -> params.put(ISSUE_TYPE, value.toLowerCase()));
