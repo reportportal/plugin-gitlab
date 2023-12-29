@@ -86,6 +86,9 @@ public class PostTicketCommand extends ProjectMemberCommand<Ticket> {
     Map<String, String> params = new HashMap<>();
     for (PostFormField field : ticketRQ.getFields()) {
       if ("description".equals(field.getId())) {
+        continue;
+      }
+      if (!params.containsKey("description")) {
         String description = "";
         if (!CollectionUtils.isEmpty(field.getValue())) {
           description = Optional.ofNullable(field.getValue().iterator().next()).orElse("");
