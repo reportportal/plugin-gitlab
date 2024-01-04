@@ -112,7 +112,8 @@ public class GitlabClient {
   }
 
   public List<MilestoneDto> searchMilestones(String projectId, String term) {
-    String pathUrl = String.format(MILESTONES_PATH, baseUrl, projectId, term);
+    String wrappedSearchCriteria = getWrappedCriteria(term);
+    String pathUrl = String.format(MILESTONES_PATH, baseUrl, projectId, wrappedSearchCriteria);
     List<Object> response = new ArrayList<>();
     getLists(response, pathUrl, new HashMap<>(pageParams));
     return objectMapper.convertValue(response, new TypeReference<>() {
@@ -120,7 +121,8 @@ public class GitlabClient {
   }
 
   public List<EpicDto> searchEpics(Long groupId, String term) {
-    String pathUrl = String.format(EPICS_PATH, baseUrl, groupId, term);
+    String wrappedSearchCriteria = getWrappedCriteria(term);
+    String pathUrl = String.format(EPICS_PATH, baseUrl, groupId, wrappedSearchCriteria);
     List<Object> response = new ArrayList<>();
     getLists(response, pathUrl, new HashMap<>(pageParams));
     return objectMapper.convertValue(response, new TypeReference<>() {
@@ -226,5 +228,9 @@ public class GitlabClient {
     } catch (Exception e) {
       throw new ReportPortalException(e.getMessage());
     }
+  }
+
+  private String getWrappedCriteria(String term) {
+    return "\"" + term + "\"";
   }
 }
