@@ -104,7 +104,8 @@ public class GitlabClient {
   }
 
   public List<UserDto> searchUsers(String projectId, String term) {
-    String pathUrl = String.format(USERS_PATH, baseUrl, projectId, term);
+    String wrappedSearchCriteria = getWrappedCriteria(term);
+    String pathUrl = String.format(USERS_PATH, baseUrl, projectId, wrappedSearchCriteria);
     List<Object> response = new ArrayList<>();
     getLists(response, pathUrl, new HashMap<>(pageParams));
     return objectMapper.convertValue(response, new TypeReference<>() {
