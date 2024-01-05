@@ -61,6 +61,8 @@ public class GitlabClient {
   private static final Map<String, List<String>> pageParams = Map.of(QUERY_PER_PAGE,
       List.of(DEFAULT_PAGE_SIZE.toString()), QUERY_PAGE, List.of("{page}"));
 
+  private static final String SPACE = " ";
+
   private final String baseUrl;
   private final String token;
   ObjectMapper objectMapper = new GitlabObjectMapperProvider().getObjectMapper();
@@ -104,7 +106,8 @@ public class GitlabClient {
   }
 
   public List<UserDto> searchUsers(String projectId, String term) {
-    String pathUrl = String.format(USERS_PATH, baseUrl, projectId, term);
+    String wrappedSearchCriteria = getWrappedCriteria(term);
+    String pathUrl = String.format(USERS_PATH, baseUrl, projectId, wrappedSearchCriteria);
     List<Object> response = new ArrayList<>();
     getLists(response, pathUrl, new HashMap<>(pageParams));
     return objectMapper.convertValue(response, new TypeReference<>() {
@@ -231,6 +234,7 @@ public class GitlabClient {
   }
 
   private String getWrappedCriteria(String term) {
-    return "\"" + term + "\"";
+    return term.contains(SPACE) ? "\"" + term + "\"" : term;
   }
+
 }
