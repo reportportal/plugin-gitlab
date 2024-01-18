@@ -1,4 +1,4 @@
-# GitLab plugin for Report Portal
+# Plugin to integrate GitLab with Report Portal
 
 ## Build locally
 
