@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.epam.reportportal.extension.gitlab.command;
 
 import static com.epam.reportportal.extension.gitlab.command.GetIssueFieldsCommand.ISSUE_TYPE;
@@ -21,7 +22,7 @@ import static com.epam.reportportal.extension.gitlab.command.PredefinedFieldType
 import static com.epam.ta.reportportal.commons.Predicates.isNull;
 import static com.epam.ta.reportportal.commons.Predicates.not;
 import static com.epam.ta.reportportal.commons.validation.BusinessRule.expect;
-import static com.epam.ta.reportportal.ws.model.ErrorType.UNABLE_INTERACT_WITH_INTEGRATION;
+import static com.epam.ta.reportportal.ws.reporting.ErrorType.UNABLE_INTERACT_WITH_INTEGRATION;
 
 import com.epam.reportportal.extension.ProjectMemberCommand;
 import com.epam.reportportal.extension.gitlab.client.GitlabClient;
@@ -33,10 +34,10 @@ import com.epam.reportportal.extension.util.RequestEntityValidator;
 import com.epam.ta.reportportal.dao.ProjectRepository;
 import com.epam.ta.reportportal.entity.integration.Integration;
 import com.epam.ta.reportportal.exception.ReportPortalException;
-import com.epam.ta.reportportal.ws.model.ErrorType;
 import com.epam.ta.reportportal.ws.model.externalsystem.PostFormField;
 import com.epam.ta.reportportal.ws.model.externalsystem.PostTicketRQ;
 import com.epam.ta.reportportal.ws.model.externalsystem.Ticket;
+import com.epam.ta.reportportal.ws.reporting.ErrorType;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -65,13 +66,16 @@ public class PostTicketCommand extends ProjectMemberCommand<Ticket> {
   @Override
   protected Ticket invokeCommand(Integration integration, Map<String, Object> params) {
     PostTicketRQ ticketRQ = requestEntityConverter.getEntity(CommandParamUtils.ENTITY_PARAM, params,
-        PostTicketRQ.class);
+        PostTicketRQ.class
+    );
     RequestEntityValidator.validate(ticketRQ);
     expect(ticketRQ.getFields(), not(isNull())).verify(UNABLE_INTERACT_WITH_INTEGRATION,
-        "External System fields set is empty!");
-    String project = GitlabProperties.PROJECT.getParam(integration.getParams())
-        .orElseThrow(() -> new ReportPortalException(ErrorType.UNABLE_INTERACT_WITH_INTEGRATION,
-            "Project key is not specified."));
+        "External System fields set is empty!"
+    );
+    String project = GitlabProperties.PROJECT.getParam(integration.getParams()).orElseThrow(
+        () -> new ReportPortalException(ErrorType.UNABLE_INTERACT_WITH_INTEGRATION,
+            "Project key is not specified."
+        ));
     final GitlabClient gitlabClient = gitlabClientProvider.get(integration.getParams());
     Map<String, String> queryParams = handleTicketFields(ticketRQ, gitlabClient, project);
     try {
@@ -90,31 +94,31 @@ public class PostTicketCommand extends ProjectMemberCommand<Ticket> {
         if (!CollectionUtils.isEmpty(field.getValue())) {
           description = Optional.ofNullable(field.getValue().iterator().next()).orElse("");
         }
-        String extended = Optional.ofNullable(descriptionBuilderService.getDescription(ticketRQ,
-            gitlabClient, gitlabProjectId)).orElse("");
+        String extended = Optional.ofNullable(
+                descriptionBuilderService.getDescription(ticketRQ, gitlabClient, gitlabProjectId))
+            .orElse("");
         String extendedDescription = description + "\n" + extended;
         params.put(field.getId(), extendedDescription);
         continue;
       }
       if (NAMED_VALUE_FIELDS.contains(field.getFieldType())) {
         if (!CollectionUtils.isEmpty(field.getNamedValue())) {
-          params.put(field.getId(), field.getNamedValue().stream()
-              .filter(Objects::nonNull)
-              .map(val -> {
+          params.put(
+              field.getId(), field.getNamedValue().stream().filter(Objects::nonNull).map(val -> {
                 if (LABELS.equals(field.getId())) {
                   return val.getName();
                 }
                 return String.valueOf(val.getId());
-              })
-              .collect(Collectors.joining(",")));
+              }).collect(Collectors.joining(",")));
         }
       } else if (!CollectionUtils.isEmpty(field.getValue())) {
         params.put(field.getId(), String.join(",", field.getValue()));
       }
     }
     if (!params.containsKey("description")) {
-      String extendedDescription = Optional.ofNullable(descriptionBuilderService.getDescription(ticketRQ,
-          gitlabClient, gitlabProjectId)).orElse("");
+      String extendedDescription = Optional.ofNullable(
+              descriptionBuilderService.getDescription(ticketRQ, gitlabClient, gitlabProjectId))
+          .orElse("");
       params.put("description", extendedDescription);
     }
     Optional.ofNullable(params.get(ISSUE_TYPE))

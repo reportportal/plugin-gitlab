@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.epam.reportportal.extension.gitlab.command;
 
 import static java.util.Optional.ofNullable;
@@ -25,7 +26,7 @@ import com.epam.reportportal.extension.gitlab.dto.IssueDto;
 import com.epam.ta.reportportal.entity.integration.Integration;
 import com.epam.ta.reportportal.entity.integration.IntegrationParams;
 import com.epam.ta.reportportal.exception.ReportPortalException;
-import com.epam.ta.reportportal.ws.model.ErrorType;
+import com.epam.ta.reportportal.ws.reporting.ErrorType;
 import java.util.List;
 import java.util.Map;
 
@@ -52,9 +53,10 @@ public class GetIssuesCommand implements PluginCommand<List<IssueDto>> {
             "Integration params are not specified."
         ));
 
-    String project = GitlabProperties.PROJECT.getParam(integrationParams)
-        .orElseThrow(() -> new ReportPortalException(ErrorType.UNABLE_INTERACT_WITH_INTEGRATION,
-            "Project ID is not specified."));
+    String project = GitlabProperties.PROJECT.getParam(integrationParams).orElseThrow(
+        () -> new ReportPortalException(ErrorType.UNABLE_INTERACT_WITH_INTEGRATION,
+            "Project ID is not specified."
+        ));
 
     try {
       GitlabClient restClient = gitlabClientProvider.get(integrationParams);
