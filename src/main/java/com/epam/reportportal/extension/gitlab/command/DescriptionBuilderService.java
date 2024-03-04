@@ -28,8 +28,8 @@ import com.epam.ta.reportportal.entity.attachment.Attachment;
 import com.epam.ta.reportportal.entity.item.TestItem;
 import com.epam.ta.reportportal.entity.log.Log;
 import com.epam.ta.reportportal.exception.ReportPortalException;
-import com.epam.ta.reportportal.ws.model.ErrorType;
 import com.epam.ta.reportportal.ws.model.externalsystem.PostTicketRQ;
+import com.epam.ta.reportportal.ws.reporting.ErrorType;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.DateFormat;
@@ -93,9 +93,8 @@ public class DescriptionBuilderService {
     }
     StringBuilder descriptionBuilder = new StringBuilder();
 
-    TestItem item = itemRepository.findById(ticketRQ.getTestItemId())
-        .orElseThrow(() -> new ReportPortalException(ErrorType.TEST_ITEM_NOT_FOUND,
-            ticketRQ.getTestItemId()));
+    TestItem item = itemRepository.findById(ticketRQ.getTestItemId()).orElseThrow(
+        () -> new ReportPortalException(ErrorType.TEST_ITEM_NOT_FOUND, ticketRQ.getTestItemId()));
     ticketRQ.getBackLinks().keySet().forEach(
         backLinkId -> updateDescriptionBuilder(descriptionBuilder, ticketRQ, backLinkId, item));
     return descriptionBuilder.toString();
@@ -104,9 +103,7 @@ public class DescriptionBuilderService {
   private void updateDescriptionBuilder(StringBuilder descriptionBuilder, PostTicketRQ ticketRQ,
       Long backLinkId, TestItem item) {
     if (StringUtils.isNotBlank(ticketRQ.getBackLinks().get(backLinkId))) {
-      descriptionBuilder.append(BACK_LINK_HEADER)
-          .append("\n\n")
-          .append(" - ")
+      descriptionBuilder.append(BACK_LINK_HEADER).append("\n\n").append(" - ")
           .append(String.format(BACK_LINK_PATTERN, ticketRQ.getBackLinks().get(backLinkId)))
           .append("\n\n");
     }
@@ -131,17 +128,14 @@ public class DescriptionBuilderService {
       PostTicketRQ ticketRQ) {
     itemRepository.findById(backLinkId)
         .ifPresent(item -> ofNullable(item.getLaunchId()).ifPresent(launchId -> {
-          List<Log> logs = logRepository.findAllUnderTestItemByLaunchIdAndTestItemIdsWithLimit(
-              launchId,
-              Collections.singletonList(item.getItemId()),
-              ticketRQ.getNumberOfLogs()
-          );
+          List<Log> logs =
+              logRepository.findAllUnderTestItemByLaunchIdAndTestItemIdsWithLimit(launchId,
+                  Collections.singletonList(item.getItemId()), ticketRQ.getNumberOfLogs()
+              );
           if (CollectionUtils.isNotEmpty(logs) && (ticketRQ.getIsIncludeLogs()
               || ticketRQ.getIsIncludeScreenshots())) {
             descriptionBuilder.append("### **Test execution log:** \n\n");
-            logs.forEach(log -> updateWithLog(descriptionBuilder,
-                log,
-                ticketRQ.getIsIncludeLogs(),
+            logs.forEach(log -> updateWithLog(descriptionBuilder, log, ticketRQ.getIsIncludeLogs(),
                 ticketRQ.getIsIncludeScreenshots()
             ));
           }
@@ -165,8 +159,7 @@ public class DescriptionBuilderService {
     StringBuilder messageBuilder = new StringBuilder();
     messageBuilder.append(CODE);
     ofNullable(log.getLogTime()).ifPresent(logTime -> messageBuilder.append(" Time: ")
-        .append(dateFormat.format(TO_DATE.apply(logTime)))
-        .append(", "));
+        .append(dateFormat.format(TO_DATE.apply(logTime))).append(", "));
     ofNullable(log.getLogLevel()).ifPresent(
         logLevel -> messageBuilder.append("Level: ").append(logLevel).append(", "));
     messageBuilder.append("Log: ").append(log.getLogMessage()).append(CODE).append("\n\n");
