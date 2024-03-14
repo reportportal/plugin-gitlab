@@ -25,7 +25,7 @@ repositories {
 
 dependencyManagement {
     imports {
-        mavenBom(releaseMode ? 'com.epam.reportportal:commons-bom:' + getProperty('bom.version') : 'com.epam.reportportal:commons-bom:5.11.2')
+        mavenBom(releaseMode ? 'com.epam.reportportal:commons-bom:' + getProperty('bom.version') : 'com.github.reportportal:commons-bom:04b1a7d')
     }
 }
 
@@ -34,8 +34,8 @@ dependencies {
         implementation 'com.epam.reportportal:plugin-api'
         annotationProcessor 'com.epam.reportportal:plugin-api'
     } else {
-        implementation 'com.epam.reportportal:plugin-api'
-        annotationProcessor 'com.epam.reportportal:plugin-api'
+        implementation 'com.github.reportportal:plugin-api:cc3c5c8e'
+        annotationProcessor 'com.github.reportportal:plugin-api:cc3c5c8e'
     }
 
     implementation group: 'javax.servlet', name: 'javax.servlet-api', version: '4.0.1'

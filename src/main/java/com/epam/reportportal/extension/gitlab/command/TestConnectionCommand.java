@@ -23,7 +23,7 @@ import com.epam.reportportal.extension.gitlab.client.GitlabClientProvider;
 import com.epam.ta.reportportal.entity.integration.Integration;
 import com.epam.ta.reportportal.entity.integration.IntegrationParams;
 import com.epam.ta.reportportal.exception.ReportPortalException;
-import com.epam.ta.reportportal.ws.model.ErrorType;
+import com.epam.ta.reportportal.ws.reporting.ErrorType;
 import java.util.Map;
 import java.util.Objects;
 import org.slf4j.Logger;
@@ -50,7 +50,8 @@ public class TestConnectionCommand implements PluginCommand<Boolean> {
   @Override
   public Boolean executeCommand(Integration integration, Map<String, Object> params) {
     IntegrationParams integrationParams = ofNullable(integration.getParams()).orElseThrow(
-        () -> new ReportPortalException(ErrorType.UNABLE_INTERACT_WITH_INTEGRATION,
+        () -> new ReportPortalException(
+            ErrorType.UNABLE_INTERACT_WITH_INTEGRATION,
             "Integration params are not specified."
         ));
 
