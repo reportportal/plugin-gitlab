@@ -16,7 +16,7 @@
 
 package com.epam.reportportal.extension.gitlab.command;
 
-import static com.epam.ta.reportportal.commons.EntityUtils.TO_DATE;
+import static com.epam.ta.reportportal.commons.EntityUtils.INSTANT_TO_LDT;
 import static java.util.Optional.ofNullable;
 
 import com.epam.reportportal.extension.gitlab.client.GitlabClient;
@@ -159,7 +159,7 @@ public class DescriptionBuilderService {
     StringBuilder messageBuilder = new StringBuilder();
     messageBuilder.append(CODE);
     ofNullable(log.getLogTime()).ifPresent(logTime -> messageBuilder.append(" Time: ")
-        .append(dateFormat.format(TO_DATE.apply(logTime))).append(", "));
+        .append(dateFormat.format(INSTANT_TO_LDT.apply(logTime))).append(", "));
     ofNullable(log.getLogLevel()).ifPresent(
         logLevel -> messageBuilder.append("Level: ").append(logLevel).append(", "));
     messageBuilder.append("Log: ").append(log.getLogMessage()).append(CODE).append("\n\n");
