@@ -11,7 +11,7 @@ const MAX_LENGTH = 55;
 
 const getProjectIdValidator =
   (requiredFieldValidator: (value: string) => string | undefined) => (value: string) => {
-    if (requiredFieldValidator(value)) {
+    if (requiredFieldValidator(value) || value.length > MAX_LENGTH) {
       return `Project ID should have length from 1 to ${MAX_LENGTH}`;
     } else if (!value.match(/^\d+$/)) {
       return 'Project ID should contain only digits';
@@ -47,7 +47,7 @@ export const IntegrationFormFields: FC<IntegrationFormFieldsInterface> = (props)
         isRequired
       >
         <FieldErrorHint provideHint={false}>
-          <FieldText maxLength={MAX_LENGTH} defaultWidth={false} />
+          <FieldText defaultWidth={false} />
         </FieldErrorHint>
       </FieldElement>
       <FieldElement name={URL} label={LABELS.URL} validate={btsUrl} disabled={disabled} isRequired>
@@ -63,7 +63,7 @@ export const IntegrationFormFields: FC<IntegrationFormFieldsInterface> = (props)
         isRequired
       >
         <FieldErrorHint provideHint={false}>
-          <FieldText maxLength={MAX_LENGTH} defaultWidth={false} />
+          <FieldText defaultWidth={false} />
         </FieldErrorHint>
       </FieldElement>
       <FieldElement

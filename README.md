@@ -1,12 +1,14 @@
-# Template plugin for Epam Report Portal
+# Plugin to integrate GitLab with Report Portal
 
-## UI
+## Build locally
+
+### UI
 
 Install the dependencies: `npm install`
 
 Build the UI source code: `npm run build`
 
-## Build the plugin
+### Build the plugin
 
 Preconditions:
 - Install JDK version 11.
