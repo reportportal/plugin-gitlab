@@ -21,11 +21,11 @@ import static org.hibernate.bytecode.BytecodeLogger.LOGGER;
 import com.epam.reportportal.extension.CommonPluginCommand;
 import com.epam.reportportal.extension.gitlab.client.GitlabClientProvider;
 import com.epam.reportportal.extension.gitlab.utils.TicketMapper;
+import com.epam.reportportal.model.externalsystem.Ticket;
 import com.epam.ta.reportportal.dao.IntegrationRepository;
 import com.epam.ta.reportportal.entity.integration.Integration;
-import com.epam.ta.reportportal.exception.ReportPortalException;
-import com.epam.ta.reportportal.ws.model.externalsystem.Ticket;
-import com.epam.ta.reportportal.ws.reporting.ErrorType;
+import com.epam.reportportal.rules.exception.ReportPortalException;
+import com.epam.reportportal.rules.exception.ErrorType;
 import java.util.Map;
 import java.util.Optional;
 
