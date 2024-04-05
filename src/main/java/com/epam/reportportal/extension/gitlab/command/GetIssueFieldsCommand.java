@@ -21,12 +21,12 @@ import static com.epam.reportportal.extension.gitlab.command.PredefinedFieldType
 import static com.epam.reportportal.extension.gitlab.command.PredefinedFieldTypes.MULTI_AUTOCOMPLETE;
 
 import com.epam.reportportal.extension.ProjectMemberCommand;
+import com.epam.reportportal.model.externalsystem.AllowedValue;
+import com.epam.reportportal.model.externalsystem.PostFormField;
 import com.epam.ta.reportportal.dao.ProjectRepository;
 import com.epam.ta.reportportal.entity.integration.Integration;
-import com.epam.ta.reportportal.exception.ReportPortalException;
-import com.epam.ta.reportportal.ws.model.externalsystem.AllowedValue;
-import com.epam.ta.reportportal.ws.model.externalsystem.PostFormField;
-import com.epam.ta.reportportal.ws.reporting.ErrorType;
+import com.epam.reportportal.rules.exception.ReportPortalException;
+import com.epam.reportportal.rules.exception.ErrorType;
 import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.Map;
