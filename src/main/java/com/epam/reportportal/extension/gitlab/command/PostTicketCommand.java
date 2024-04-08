@@ -19,10 +19,10 @@ package com.epam.reportportal.extension.gitlab.command;
 import static com.epam.reportportal.extension.gitlab.command.GetIssueFieldsCommand.ISSUE_TYPE;
 import static com.epam.reportportal.extension.gitlab.command.GetIssueFieldsCommand.LABELS;
 import static com.epam.reportportal.extension.gitlab.command.PredefinedFieldTypes.NAMED_VALUE_FIELDS;
+import static com.epam.reportportal.rules.commons.validation.BusinessRule.expect;
+import static com.epam.reportportal.rules.exception.ErrorType.UNABLE_INTERACT_WITH_INTEGRATION;
 import static com.epam.ta.reportportal.commons.Predicates.isNull;
 import static com.epam.ta.reportportal.commons.Predicates.not;
-import static com.epam.ta.reportportal.commons.validation.BusinessRule.expect;
-import static com.epam.ta.reportportal.ws.reporting.ErrorType.UNABLE_INTERACT_WITH_INTEGRATION;
 
 import com.epam.reportportal.extension.ProjectMemberCommand;
 import com.epam.reportportal.extension.gitlab.client.GitlabClient;
@@ -31,13 +31,13 @@ import com.epam.reportportal.extension.gitlab.utils.TicketMapper;
 import com.epam.reportportal.extension.util.CommandParamUtils;
 import com.epam.reportportal.extension.util.RequestEntityConverter;
 import com.epam.reportportal.extension.util.RequestEntityValidator;
+import com.epam.reportportal.model.externalsystem.PostFormField;
+import com.epam.reportportal.model.externalsystem.PostTicketRQ;
+import com.epam.reportportal.model.externalsystem.Ticket;
 import com.epam.ta.reportportal.dao.ProjectRepository;
 import com.epam.ta.reportportal.entity.integration.Integration;
-import com.epam.ta.reportportal.exception.ReportPortalException;
-import com.epam.ta.reportportal.ws.model.externalsystem.PostFormField;
-import com.epam.ta.reportportal.ws.model.externalsystem.PostTicketRQ;
-import com.epam.ta.reportportal.ws.model.externalsystem.Ticket;
-import com.epam.ta.reportportal.ws.reporting.ErrorType;
+import com.epam.reportportal.rules.exception.ReportPortalException;
+import com.epam.reportportal.rules.exception.ErrorType;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -73,7 +73,7 @@ public class PostTicketCommand extends ProjectMemberCommand<Ticket> {
         "External System fields set is empty!"
     );
     String project = GitlabProperties.PROJECT.getParam(integration.getParams()).orElseThrow(
-        () -> new ReportPortalException(ErrorType.UNABLE_INTERACT_WITH_INTEGRATION,
+        () -> new ReportPortalException(UNABLE_INTERACT_WITH_INTEGRATION,
             "Project key is not specified."
         ));
     final GitlabClient gitlabClient = gitlabClientProvider.get(integration.getParams());

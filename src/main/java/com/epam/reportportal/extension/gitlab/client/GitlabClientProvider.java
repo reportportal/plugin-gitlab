@@ -2,8 +2,8 @@ package com.epam.reportportal.extension.gitlab.client;
 
 import com.epam.reportportal.extension.gitlab.command.GitlabProperties;
 import com.epam.ta.reportportal.entity.integration.IntegrationParams;
-import com.epam.ta.reportportal.exception.ReportPortalException;
-import com.epam.ta.reportportal.ws.reporting.ErrorType;
+import com.epam.reportportal.rules.exception.ReportPortalException;
+import com.epam.reportportal.rules.exception.ErrorType;
 import org.jasypt.util.text.BasicTextEncryptor;
 
 /**

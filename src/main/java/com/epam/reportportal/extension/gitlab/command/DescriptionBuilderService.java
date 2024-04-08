@@ -21,15 +21,15 @@ import static java.util.Optional.ofNullable;
 
 import com.epam.reportportal.extension.gitlab.client.GitlabClient;
 import com.epam.reportportal.extension.gitlab.dto.UploadsLinkDto;
+import com.epam.reportportal.model.externalsystem.PostTicketRQ;
 import com.epam.ta.reportportal.binary.DataStoreService;
 import com.epam.ta.reportportal.dao.LogRepository;
 import com.epam.ta.reportportal.dao.TestItemRepository;
 import com.epam.ta.reportportal.entity.attachment.Attachment;
 import com.epam.ta.reportportal.entity.item.TestItem;
 import com.epam.ta.reportportal.entity.log.Log;
-import com.epam.ta.reportportal.exception.ReportPortalException;
-import com.epam.ta.reportportal.ws.model.externalsystem.PostTicketRQ;
-import com.epam.ta.reportportal.ws.reporting.ErrorType;
+import com.epam.reportportal.rules.exception.ReportPortalException;
+import com.epam.reportportal.rules.exception.ErrorType;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.DateFormat;
