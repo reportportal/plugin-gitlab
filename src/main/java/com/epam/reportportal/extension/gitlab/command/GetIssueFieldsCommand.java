@@ -56,7 +56,7 @@ public class GetIssueFieldsCommand extends ProjectMemberCommand<List<PostFormFie
     List<PostFormField> result = Lists.newArrayList(
         PostFormField.builder().id("title").fieldName("Title").fieldType("string").isRequired(true)
             .build(),
-        PostFormField.builder().id("description").fieldName("Description").fieldType("string")
+        PostFormField.builder().id("description").fieldName("Description").fieldType("multilineText")
             .build(),
         PostFormField.builder().id(ISSUE_TYPE).fieldName("Issue type").fieldType("issuetype")
             .isRequired(true)
