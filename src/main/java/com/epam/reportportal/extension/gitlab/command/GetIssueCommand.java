@@ -16,23 +16,26 @@
 
 package com.epam.reportportal.extension.gitlab.command;
 
-import static org.hibernate.bytecode.BytecodeLogger.LOGGER;
 
 import com.epam.reportportal.extension.CommonPluginCommand;
 import com.epam.reportportal.extension.gitlab.client.GitlabClientProvider;
 import com.epam.reportportal.extension.gitlab.utils.TicketMapper;
 import com.epam.reportportal.model.externalsystem.Ticket;
+import com.epam.reportportal.rules.exception.ErrorType;
+import com.epam.reportportal.rules.exception.ReportPortalException;
 import com.epam.ta.reportportal.dao.IntegrationRepository;
 import com.epam.ta.reportportal.entity.integration.Integration;
-import com.epam.reportportal.rules.exception.ReportPortalException;
-import com.epam.reportportal.rules.exception.ErrorType;
 import java.util.Map;
 import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author <a href="mailto:andrei_piankouski@epam.com">Andrei Piankouski</a>
  */
 public class GetIssueCommand implements CommonPluginCommand<Ticket> {
+  private static final Logger LOGGER = LoggerFactory.getLogger(GetIssueCommand.class);
+
 
   private final String PROJECT_ID = "projectId";
 
