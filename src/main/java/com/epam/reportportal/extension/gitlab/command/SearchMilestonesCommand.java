@@ -17,22 +17,24 @@
 package com.epam.reportportal.extension.gitlab.command;
 
 import static java.util.Optional.ofNullable;
-import static org.hibernate.bytecode.BytecodeLogger.LOGGER;
 
 import com.epam.reportportal.extension.PluginCommand;
 import com.epam.reportportal.extension.gitlab.client.GitlabClientProvider;
 import com.epam.reportportal.extension.gitlab.dto.MilestoneDto;
+import com.epam.reportportal.rules.exception.ErrorType;
+import com.epam.reportportal.rules.exception.ReportPortalException;
 import com.epam.ta.reportportal.entity.integration.Integration;
 import com.epam.ta.reportportal.entity.integration.IntegrationParams;
-import com.epam.reportportal.rules.exception.ReportPortalException;
-import com.epam.reportportal.rules.exception.ErrorType;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author <a href="mailto:pavel_bortnik@epam.com">Pavel Bortnik</a>
  */
 public class SearchMilestonesCommand implements PluginCommand<List<MilestoneDto>> {
+  private static final Logger LOGGER = LoggerFactory.getLogger(SearchMilestonesCommand.class);
 
   private final GitlabClientProvider gitlabClientProvider;
 
