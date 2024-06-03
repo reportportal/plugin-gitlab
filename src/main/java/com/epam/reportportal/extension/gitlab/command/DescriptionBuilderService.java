@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -64,14 +65,14 @@ public class DescriptionBuilderService {
   private final LogRepository logRepository;
   private final TestItemRepository itemRepository;
   private final DataStoreService dataStoreService;
-  private final DateFormat dateFormat;
+  private final DateTimeFormatter dateFormat;
   private final MimeTypes mimeRepository;
   private GitlabClient gitlabClient;
   private String projectId;
 
   public DescriptionBuilderService(LogRepository logRepository, TestItemRepository itemRepository,
       DataStoreService dataStoreService) {
-    this.dateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+    this.dateFormat = DateTimeFormatter.ofPattern("MM-dd-yyyy HH:mm:ss");
     this.logRepository = logRepository;
     this.itemRepository = itemRepository;
     this.mimeRepository = TikaConfig.getDefaultConfig().getMimeRepository();
