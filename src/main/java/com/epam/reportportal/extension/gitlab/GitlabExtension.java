@@ -62,7 +62,7 @@ public class GitlabExtension implements ReportPortalExtensionPoint, DisposableBe
   public static final String BINARY_DATA_PROPERTIES_FILE_ID = "binary-data.properties";
   private static final String PLUGIN_ID = "GitLab";
   private static final String DOCUMENTATION_LINK_FIELD = "documentationLink";
-  private static final String DOCUMENTATION_LINK = "https://reportportal.io/docs/plugins/GitLabBTS";
+  private static final String DOCUMENTATION_LINK = "https://reportportal.io/docs/plugins/GitLab/";
   private final String resourcesDir;
   private final RequestEntityConverter requestEntityConverter;
   private final Supplier<ApplicationListener<PluginEvent>> pluginLoadedListenerSupplier;

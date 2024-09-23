@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.epam.reportportal.extension.gitlab.command;
 
 import static com.epam.reportportal.extension.gitlab.command.GetIssueTypesCommand.ISSUE;
@@ -20,12 +21,12 @@ import static com.epam.reportportal.extension.gitlab.command.PredefinedFieldType
 import static com.epam.reportportal.extension.gitlab.command.PredefinedFieldTypes.MULTI_AUTOCOMPLETE;
 
 import com.epam.reportportal.extension.ProjectMemberCommand;
+import com.epam.reportportal.model.externalsystem.AllowedValue;
+import com.epam.reportportal.model.externalsystem.PostFormField;
 import com.epam.ta.reportportal.dao.ProjectRepository;
 import com.epam.ta.reportportal.entity.integration.Integration;
-import com.epam.ta.reportportal.exception.ReportPortalException;
-import com.epam.ta.reportportal.ws.model.ErrorType;
-import com.epam.ta.reportportal.ws.model.externalsystem.AllowedValue;
-import com.epam.ta.reportportal.ws.model.externalsystem.PostFormField;
+import com.epam.reportportal.rules.exception.ReportPortalException;
+import com.epam.reportportal.rules.exception.ErrorType;
 import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.Map;
@@ -40,8 +41,10 @@ public class GetIssueFieldsCommand extends ProjectMemberCommand<List<PostFormFie
   public static final String ISSUE_TYPE_PARAM = "issueType";
   public static final String LABELS = "labels";
 
-  private static final String PAID_DESCRIPTION = "Available only for paid Enterprise version of GitLab";
-  private static final String ASSIGNEE_DESCRIPTION = "Note that the free version of GitLab allows only one assignee";
+  private static final String PAID_DESCRIPTION =
+      "Available only for paid Enterprise version of GitLab";
+  private static final String ASSIGNEE_DESCRIPTION =
+      "Note that the free version of GitLab allows only one assignee";
 
   public GetIssueFieldsCommand(ProjectRepository projectRepository) {
     super(projectRepository);
@@ -49,33 +52,27 @@ public class GetIssueFieldsCommand extends ProjectMemberCommand<List<PostFormFie
 
   @Override
   protected List<PostFormField> invokeCommand(Integration integration, Map<String, Object> params) {
-    String issueTypeParam = Optional.ofNullable(params.get(ISSUE_TYPE_PARAM))
-        .map(it -> (String) it)
+    String issueTypeParam = Optional.ofNullable(params.get(ISSUE_TYPE_PARAM)).map(it -> (String) it)
         .orElseThrow(() -> new ReportPortalException(ErrorType.BAD_REQUEST_ERROR,
-            "Issue type is not provided"));
+            "Issue type is not provided"
+        ));
     List<PostFormField> result = Lists.newArrayList(
         PostFormField.builder().id("title").fieldName("Title").fieldType("string").isRequired(true)
-            .build(),
-        PostFormField.builder().id("description").fieldName("Description").fieldType("multilineText")
-            .build(),
+            .build(), PostFormField.builder().id("description").fieldName("Description")
+            .fieldType("multilineText").build(),
         PostFormField.builder().id(ISSUE_TYPE).fieldName("Issue type").fieldType("issuetype")
-            .isRequired(true)
-            .definedValues(List.of(
-                new AllowedValue("issue", "issue"),
-                new AllowedValue("incident", "incident")))
+            .isRequired(true).definedValues(
+                List.of(new AllowedValue("issue", "issue"), new AllowedValue("incident", "incident")))
             .build(),
         PostFormField.builder().id("confidential").fieldName("Confidential").fieldType("string")
-            .definedValues(List.of(
-                new AllowedValue("false", "No"),
-                new AllowedValue("true", "Yes")))
-            .build(),
+            .definedValues(
+                List.of(new AllowedValue("false", "No"), new AllowedValue("true", "Yes"))).build(),
         PostFormField.builder().id("assignee_ids").fieldName("Assignee(s)")
             .fieldType(MULTI_AUTOCOMPLETE).commandName("searchUsers")
             .description(ASSIGNEE_DESCRIPTION).build(),
         PostFormField.builder().id("due_date").fieldName("Due Date").fieldType("string").build(),
         PostFormField.builder().id(LABELS).fieldName("Labels")
-            .fieldType(CREATABLE_MULTI_AUTOCOMPLETE)
-            .commandName("searchLabels").build(),
+            .fieldType(CREATABLE_MULTI_AUTOCOMPLETE).commandName("searchLabels").build(),
         PostFormField.builder().id("milestone_id").fieldName("Milestone").fieldType("autocomplete")
             .commandName("searchMilestones").build()
     );

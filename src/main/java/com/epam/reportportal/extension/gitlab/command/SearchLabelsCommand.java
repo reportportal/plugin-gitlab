@@ -13,26 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.epam.reportportal.extension.gitlab.command;
 
 import static java.util.Optional.ofNullable;
-import static org.hibernate.bytecode.BytecodeLogger.LOGGER;
 
 import com.epam.reportportal.extension.PluginCommand;
 import com.epam.reportportal.extension.gitlab.client.GitlabClientProvider;
 import com.epam.reportportal.extension.gitlab.dto.LabelDto;
+import com.epam.reportportal.rules.exception.ErrorType;
+import com.epam.reportportal.rules.exception.ReportPortalException;
 import com.epam.ta.reportportal.entity.integration.Integration;
 import com.epam.ta.reportportal.entity.integration.IntegrationParams;
-import com.epam.ta.reportportal.exception.ReportPortalException;
-import com.epam.ta.reportportal.ws.model.ErrorType;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author <a href="mailto:pavel_bortnik@epam.com">Pavel Bortnik</a>
  */
 public class SearchLabelsCommand implements PluginCommand<List<LabelDto>> {
-
+  private static final Logger LOGGER = LoggerFactory.getLogger(SearchLabelsCommand.class);
   private final GitlabClientProvider gitlabClientProvider;
 
   public SearchLabelsCommand(GitlabClientProvider gitlabClientProvider) {
@@ -47,17 +49,18 @@ public class SearchLabelsCommand implements PluginCommand<List<LabelDto>> {
   @Override
   public List<LabelDto> executeCommand(Integration integration, Map<String, Object> params) {
     IntegrationParams integrationParams = ofNullable(integration.getParams()).orElseThrow(
-        () -> new ReportPortalException(
-            ErrorType.UNABLE_INTERACT_WITH_INTEGRATION,
+        () -> new ReportPortalException(ErrorType.UNABLE_INTERACT_WITH_INTEGRATION,
             "Integration params are not specified."
         ));
 
-    String project = GitlabProperties.PROJECT.getParam(integrationParams)
-        .orElseThrow(() -> new ReportPortalException(ErrorType.UNABLE_INTERACT_WITH_INTEGRATION,
-            "Project ID is not specified."));
+    String project = GitlabProperties.PROJECT.getParam(integrationParams).orElseThrow(
+        () -> new ReportPortalException(ErrorType.UNABLE_INTERACT_WITH_INTEGRATION,
+            "Project ID is not specified."
+        ));
     String term = GitlabProperties.SEARCH_TERM.getParam(params).orElseThrow(
         () -> new ReportPortalException(ErrorType.UNABLE_INTERACT_WITH_INTEGRATION,
-            "Search term is not specified"));
+            "Search term is not specified"
+        ));
 
     try {
       return gitlabClientProvider.get(integrationParams).searchLabels(project, term);
